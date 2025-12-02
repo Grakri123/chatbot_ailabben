@@ -75,16 +75,14 @@ export default async function handler(req, res) {
       userAgent: req.headers['user-agent']
     });
 
-    // Get session BEFORE adding message to count correctly
+    // Get session BEFORE adding message to check count correctly
     const sessionBefore = sessionManager.getSession(sessionIdToUse);
-    
-    // Count user messages BEFORE adding the current one
     const userMessageCountBefore = sessionBefore.chatHistory.filter(msg => msg.role === 'user').length;
     
     // Add user message to session
     sessionManager.addMessage(sessionIdToUse, 'user', sanitizedMessage);
-    
-    // Get updated session after adding message
+
+    // Get session data after adding message
     const session = sessionManager.getSession(sessionIdToUse);
 
     // Determine message count for contact collection logic
@@ -95,8 +93,11 @@ export default async function handler(req, res) {
     
     // Contact collection logic - kun én gang per session
     const hasContact = sessionManager.hasContactInfo(sessionIdToUse);
-    // Use count AFTER adding message (this is the current message number)
+    // This is the current message number (after adding)
     const userMessageCount = userMessageCountBefore + 1;
+    
+    // Debug logging
+    console.log(`[DEBUG] userMessageCountBefore: ${userMessageCountBefore}, userMessageCount: ${userMessageCount}, hasContact: ${hasContact}`);
     
     // Sjekk om kontakt allerede er samlet i meldinger (inkludert nåværende)
     let contactAlreadyInMessages = false;
@@ -172,9 +173,13 @@ export default async function handler(req, res) {
     // Oppdater hasContact etter sjekk av meldinger
     const contactCollected = hasContact || contactAlreadyInMessages;
     
-    // Vis kontaktskjema på 2. brukermelding (hvis kontakt ikke allerede er samlet)
-    if (userMessageCount === 2 && !contactCollected) {
-      // Andre brukermelding - vis kontaktskjema
+    // Debug logging
+    console.log(`[DEBUG] contactCollected: ${contactCollected}, userMessageCount: ${userMessageCount}`);
+    
+    // Vis kontaktskjema på 3. brukermelding (hvis kontakt ikke allerede er samlet)
+    if (userMessageCount === 3 && !contactCollected) {
+      console.log(`[DEBUG] Viser kontaktskjema på 3. melding`);
+      // Tredje brukermelding - vis kontaktskjema
       botResponse = {
         type: 'contact_form',
         message: 'Jeg gleder meg til å fortsette denne samtalen, men først trenger jeg at du fyller ut infoen under 😊',
@@ -198,8 +203,8 @@ export default async function handler(req, res) {
           submitText: 'Send inn'
         }
       };
-    } else if (userMessageCount === 3 && !contactCollected) {
-      // Tredje brukermelding - håndter innsending av skjema (hvis skjema ble vist på 2. melding)
+    } else if (userMessageCount === 4 && !contactCollected) {
+      // Fjerde brukermelding - håndter innsending av skjema (hvis skjema ble vist på 3. melding)
       // Contact form submission handling
       
       let formData;
@@ -229,11 +234,11 @@ export default async function handler(req, res) {
         });
         
         // Find the user's question that triggered the contact form
-        // Trigger-meldingen er den siste brukermeldingen før kontaktskjemaet (2. melding)
+        // Trigger-meldingen er den siste brukermeldingen før kontaktskjemaet (3. melding)
         let triggerMessage = 'Ukjent';
         
         // Look through session history backwards to find the last user message before contact form
-        // (This should be the 2nd user message, which triggered the contact form)
+        // (This should be the 3rd user message, which triggered the contact form)
         for (let i = session.chatHistory.length - 1; i >= 0; i--) {
           const msg = session.chatHistory[i];
           if (msg.role === 'user' && 
@@ -363,7 +368,8 @@ Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gi
         };
       }
     } else {
-      // Normal AI response (1st message, or 2nd message if contact already collected, or after contact is collected)
+      // Normal AI response (1st, 2nd, or 3rd message if contact already collected, or after contact is collected)
+      console.log(`[DEBUG] Normal AI response for melding ${userMessageCount}`);
       let prompt = SYSTEM_PROMPT;
       
       // If contact is already collected, include customer name in prompt
@@ -374,21 +380,68 @@ Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gi
 Du snakker med ${finalContactInfo.userName} som allerede har gitt deg kontaktinformasjon. Fortsett samtalen naturlig.`;
       }
       
-      const contextInfo = { currentUrl: sanitizedUrl };
-      const messages = createChatMessages(
-        prompt,
-        null,
-        sanitizedMessage,
-        contextInfo
-      );
+      // Build messages array with system prompt and full conversation history
+      const messages = [
+        { role: 'system', content: prompt }
+      ];
       
-      const aiResult = await OpenAIService.generateResponse(messages, AI_CONFIG);
-      
-      if (!aiResult.success) {
-        return res.status(500).json(createErrorResponse(aiResult.response, 500));
+      // Add conversation history (excluding contact form messages)
+      for (const msg of session.chatHistory) {
+        // Skip contact form messages
+        if (msg.role === 'assistant') {
+          try {
+            const parsed = typeof msg.content === 'string' ? JSON.parse(msg.content) : msg.content;
+            if (parsed && parsed.type === 'contact_form') {
+              continue; // Skip contact form messages
+            }
+          } catch {
+            // Not JSON, check if it contains contact form text
+            if (typeof msg.content === 'string' && msg.content.includes('"type":"contact_form"')) {
+              continue; // Skip contact form messages
+            }
+          }
+        }
+        
+        // Skip user messages that are form submissions
+        if (msg.role === 'user' && (msg.content.includes('user_name') || msg.content.includes('user_email'))) {
+          try {
+            const parsed = JSON.parse(msg.content);
+            if (parsed.user_name || parsed.user_email) {
+              continue; // Skip form submissions
+            }
+          } catch {
+            // Not JSON, might be text format - skip if it looks like contact info submission
+            if (looksLikeContactInfo(msg.content) && msg.content.includes('Navn:') && msg.content.includes('E-post:')) {
+              continue; // Skip form submissions
+            }
+          }
+        }
+        
+        messages.push({
+          role: msg.role,
+          content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
+        });
       }
       
-      botResponse = aiResult.response;
+      try {
+        const aiResult = await OpenAIService.generateResponse(messages, AI_CONFIG);
+        
+        if (!aiResult.success) {
+          console.error('[ERROR] AI response failed:', aiResult.response);
+          return res.status(500).json(createErrorResponse(aiResult.response || 'AI service error', 500));
+        }
+        
+        botResponse = aiResult.response;
+      } catch (aiError) {
+        console.error('[ERROR] AI service exception:', aiError);
+        return res.status(500).json(createErrorResponse('AI service error: ' + aiError.message, 500));
+      }
+    }
+
+    // Ensure botResponse is set
+    if (!botResponse) {
+      console.error('[ERROR] botResponse er ikke satt! userMessageCount:', userMessageCount, 'contactCollected:', contactCollected);
+      botResponse = 'Beklager, jeg opplevde en teknisk feil. Kan du prøve igjen?';
     }
 
     // Add bot response to session

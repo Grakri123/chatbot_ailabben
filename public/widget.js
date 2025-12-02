@@ -1,10 +1,10 @@
 
 // AI Labben Chatbot Widget v2.0.1
 // Auto-generated file - do not edit directly
-// Generated: 2025-12-02T11:38:59.005Z
+// Generated: 2025-12-02T12:43:53.216Z
 
 // Expose build version for debugging
-(function(){ try { window.AICHAT_WIDGET_VERSION = 'v2.0.1-2025-12-02T11:38:59.006Z'; } catch(e){} })();
+(function(){ try { window.AICHAT_WIDGET_VERSION = 'v2.0.1-2025-12-02T12:43:53.216Z'; } catch(e){} })();
 
 // Inject CSS
 (function() {
