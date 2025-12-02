@@ -127,7 +127,7 @@ Server kjører på port 3000 (eller \`PORT\` miljøvariabel).
 
 \`\`\`html
 <!-- Legg til i <head> eller før </body> -->
-<script src="https://chat_ailabben.ailabben.no/widget.js"></script>
+<script src="https://chatailabben.ailabben.no/widget.js"></script>
 <script>
   AIChatbot.init(); // Ingen konfigurasjon nødvendig!
 </script>
@@ -136,7 +136,7 @@ Server kjører på port 3000 (eller \`PORT\` miljøvariabel).
 ### Avansert konfigurering
 
 \`\`\`html
-<script src="https://chat_ailabben.ailabben.no/widget.js"></script>
+<script src="https://chatailabben.ailabben.no/widget.js"></script>
 <script>
   // Vent til siden er lastet
   document.addEventListener('DOMContentLoaded', function() {
@@ -156,7 +156,7 @@ Server kjører på port 3000 (eller \`PORT\` miljøvariabel).
 <script>
   window.AICHAT_AUTO_INIT = false; // Sett før widget-script
 </script>
-<script src="https://chat_ailabben.ailabben.no/widget.js"></script>
+<script src="https://chatailabben.ailabben.no/widget.js"></script>
 <script>
   // Initialiser manuelt senere
   AIChatbot.init();
@@ -320,7 +320,7 @@ Alle samtaler logges automatisk med:
 
 Overvåk systemet med:
 \`\`\`bash
-curl https://chat_ailabben.ailabben.no/api/health
+curl https://chatailabben.ailabben.no/api/health
 \`\`\`
 
 ## 🛠️ Utvikling

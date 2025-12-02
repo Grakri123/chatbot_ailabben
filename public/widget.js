@@ -1,10 +1,10 @@
 
 // AI Labben Chatbot Widget v2.0.1
 // Auto-generated file - do not edit directly
-// Generated: 2025-12-02T11:18:06.710Z
+// Generated: 2025-12-02T11:38:59.005Z
 
 // Expose build version for debugging
-(function(){ try { window.AICHAT_WIDGET_VERSION = 'v2.0.1-2025-12-02T11:18:06.711Z'; } catch(e){} })();
+(function(){ try { window.AICHAT_WIDGET_VERSION = 'v2.0.1-2025-12-02T11:38:59.006Z'; } catch(e){} })();
 
 // Inject CSS
 (function() {
@@ -739,7 +739,7 @@
       }
 
       // 3) Default production API URL
-      const defaultApiUrl = 'https://chat_ailabben.ailabben.no';
+      const defaultApiUrl = 'https://chatailabben.ailabben.no';
       
       // 4) Fallback: current page origin (only for localhost development)
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -750,7 +750,7 @@
       return defaultApiUrl;
     } catch (e) {
       // Final fallback - use production API URL
-      return 'https://chat_ailabben.ailabben.no';
+      return 'https://chatailabben.ailabben.no';
     }
   }
 

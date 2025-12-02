@@ -19,7 +19,7 @@
       }
 
       // 3) Default production API URL
-      const defaultApiUrl = 'https://chat_ailabben.ailabben.no';
+      const defaultApiUrl = 'https://chatailabben.ailabben.no';
       
       // 4) Fallback: current page origin (only for localhost development)
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -30,7 +30,7 @@
       return defaultApiUrl;
     } catch (e) {
       // Final fallback - use production API URL
-      return 'https://chat_ailabben.ailabben.no';
+      return 'https://chatailabben.ailabben.no';
     }
   }
 
