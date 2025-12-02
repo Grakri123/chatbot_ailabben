@@ -127,24 +127,24 @@ Server kjører på port 3000 (eller \`PORT\` miljøvariabel).
 
 \`\`\`html
 <!-- Legg til i <head> eller før </body> -->
-<script src="https://chat.ailabben.no/widget.js"></script>
+<script src="https://chat_ailabben.ailabben.no/widget.js"></script>
 <script>
-  KLChatbot.init(); // Ingen konfigurasjon nødvendig!
+  AIChatbot.init(); // Ingen konfigurasjon nødvendig!
 </script>
 \`\`\`
 
 ### Avansert konfigurering
 
 \`\`\`html
-<script src="https://chat.ailabben.no/widget.js"></script>
+<script src="https://chat_ailabben.ailabben.no/widget.js"></script>
 <script>
   // Vent til siden er lastet
   document.addEventListener('DOMContentLoaded', function() {
-    KLChatbot.init();
+    AIChatbot.init();
     
     // Åpne chatten automatisk etter 5 sekunder
     setTimeout(() => {
-      KLChatbot.open();
+      AIChatbot.open();
     }, 5000);
   });
 </script>
@@ -154,12 +154,12 @@ Server kjører på port 3000 (eller \`PORT\` miljøvariabel).
 
 \`\`\`html
 <script>
-  window.KLCHAT_AUTO_INIT = false; // Sett før widget-script
+  window.AICHAT_AUTO_INIT = false; // Sett før widget-script
 </script>
-<script src="https://chat.ailabben.no/widget.js"></script>
+<script src="https://chat_ailabben.ailabben.no/widget.js"></script>
 <script>
   // Initialiser manuelt senere
-  KLChatbot.init();
+  AIChatbot.init();
 </script>
 \`\`\`
 
@@ -167,13 +167,13 @@ Server kjører på port 3000 (eller \`PORT\` miljøvariabel).
 
 \`\`\`javascript
 // Tilgjengelige metoder
-KLChatbot.init();                             // Initialiser widget
-KLChatbot.open();                             // Åpne chat
-KLChatbot.close();                            // Lukk chat
-KLChatbot.toggle();                           // Veksle chat åpen/lukket
-KLChatbot.isOpen();                           // Sjekk om chat er åpen
-KLChatbot.getSessionId();                     // Hent session ID
-KLChatbot.getChatHistory();                   // Hent chat-historikk
+AIChatbot.init();                             // Initialiser widget
+AIChatbot.open();                             // Åpne chat
+AIChatbot.close();                            // Lukk chat
+AIChatbot.toggle();                           // Veksle chat åpen/lukket
+AIChatbot.isOpen();                           // Sjekk om chat er åpen
+AIChatbot.getSessionId();                     // Hent session ID
+AIChatbot.getChatHistory();                   // Hent chat-historikk
 \`\`\`
 
 ## 🔧 Administrasjon
@@ -290,11 +290,11 @@ npm run build
 ### CSS-variabler
 
 \`\`\`css
-.klchat-widget {
-  --klchat-primary: #2563eb;        /* Hovedfarge */
-  --klchat-primary-hover: #1d4ed8;  /* Hover-farge */
-  --klchat-background: #ffffff;     /* Bakgrunn */
-  --klchat-text: #1e293b;          /* Tekstfarge */
+.aichat-widget {
+  --aichat-primary: #2563eb;        /* Hovedfarge */
+  --aichat-primary-hover: #1d4ed8;  /* Hover-farge */
+  --aichat-background: #ffffff;     /* Bakgrunn */
+  --aichat-text: #1e293b;          /* Tekstfarge */
 }
 \`\`\`
 
@@ -320,7 +320,7 @@ Alle samtaler logges automatisk med:
 
 Overvåk systemet med:
 \`\`\`bash
-curl https://chat.ailabben.no/api/health
+curl https://chat_ailabben.ailabben.no/api/health
 \`\`\`
 
 ## 🛠️ Utvikling

@@ -1,63 +1,63 @@
 
 // AI Labben Chatbot Widget v2.0.1
 // Auto-generated file - do not edit directly
-// Generated: 2025-12-02T10:32:19.243Z
+// Generated: 2025-12-02T11:18:06.710Z
 
 // Expose build version for debugging
-(function(){ try { window.KLCHAT_WIDGET_VERSION = 'v2.0.1-2025-12-02T10:32:19.244Z'; } catch(e){} })();
+(function(){ try { window.AICHAT_WIDGET_VERSION = 'v2.0.1-2025-12-02T11:18:06.711Z'; } catch(e){} })();
 
 // Inject CSS
 (function() {
   'use strict';
   
   // Check if styles are already injected
-  if (document.getElementById('klchat-widget-styles')) {
+  if (document.getElementById('aichat-widget-styles')) {
     return;
   }
   
   const style = document.createElement('style');
-  style.id = 'klchat-widget-styles';
+  style.id = 'aichat-widget-styles';
   style.textContent = `/* AI Chatbot Widget Styles - Matches glocal.css design system */
-.klchat-widget {
+.aichat-widget {
   /* Primary colors from glocal.css */
-  --klchat-primary: hsl(24, 100%, 50%); /* #ff6b00 / orange-500 */
-  --klchat-primary-hover: hsl(24, 100%, 45%); /* Darker orange for hover */
-  --klchat-primary-foreground: hsl(0, 0%, 98%); /* Almost white */
+  --aichat-primary: hsl(24, 100%, 50%); /* #ff6b00 / orange-500 */
+  --aichat-primary-hover: hsl(24, 100%, 45%); /* Darker orange for hover */
+  --aichat-primary-foreground: hsl(0, 0%, 98%); /* Almost white */
   
   /* Background and surface colors */
-  --klchat-background: hsl(0, 0%, 100%); /* White */
-  --klchat-surface: hsl(0, 0%, 96.1%); /* Secondary color */
+  --aichat-background: hsl(0, 0%, 100%); /* White */
+  --aichat-surface: hsl(0, 0%, 96.1%); /* Secondary color */
   
   /* Text colors */
-  --klchat-text: hsl(0, 0%, 3.9%); /* Foreground - almost black */
-  --klchat-text-muted: hsl(0, 0%, 45.1%); /* Muted foreground */
+  --aichat-text: hsl(0, 0%, 3.9%); /* Foreground - almost black */
+  --aichat-text-muted: hsl(0, 0%, 45.1%); /* Muted foreground */
   
   /* Secondary and accent */
-  --klchat-secondary: hsl(0, 0%, 96.1%); /* Secondary color */
-  --klchat-secondary-foreground: hsl(0, 0%, 9%); /* Dark gray */
+  --aichat-secondary: hsl(0, 0%, 96.1%); /* Secondary color */
+  --aichat-secondary-foreground: hsl(0, 0%, 9%); /* Dark gray */
   
   /* Border and input */
-  --klchat-border: hsl(0, 0%, 89.8%); /* Border color */
-  --klchat-input-border: hsl(0, 0%, 89.8%); /* Input border */
+  --aichat-border: hsl(0, 0%, 89.8%); /* Border color */
+  --aichat-input-border: hsl(0, 0%, 89.8%); /* Input border */
   
   /* Ring color (focus) */
-  --klchat-ring: hsl(24, 100%, 50%); /* Primary color for focus rings */
+  --aichat-ring: hsl(24, 100%, 50%); /* Primary color for focus rings */
   
   /* Status colors */
-  --klchat-success: hsl(142, 76%, 36%); /* Green */
-  --klchat-error: hsl(0, 84.2%, 60.2%); /* Destructive color from glocal.css */
+  --aichat-success: hsl(142, 76%, 36%); /* Green */
+  --aichat-error: hsl(0, 84.2%, 60.2%); /* Destructive color from glocal.css */
   
   /* Border radius */
-  --klchat-radius: 0.5rem; /* 8px - matches glocal.css */
+  --aichat-radius: 0.5rem; /* 8px - matches glocal.css */
   
   /* Shadows */
-  --klchat-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --klchat-shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --aichat-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --aichat-shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   
   font-family: Arial, sans-serif;
   font-size: 14px;
   line-height: 1.5;
-  color: var(--klchat-text);
+  color: var(--aichat-text);
   box-sizing: border-box;
   
   /* SIMPLE: No container styling - only children matter */
@@ -69,26 +69,26 @@
 }
 
 /* ISOLATION: All child elements inherit isolation */
-.klchat-widget *, 
-.klchat-widget *::before, 
-.klchat-widget *::after {
+.aichat-widget *, 
+.aichat-widget *::before, 
+.aichat-widget *::after {
   box-sizing: border-box;
   pointer-events: inherit; /* Inherit isolation from parent */
 }
 
 /* Chat Button - SIMPLE AND CLEAN */
-.klchat-button {
+.aichat-button {
   position: fixed;
   bottom: 24px;
   right: 24px;
   width: 60px;
   height: 60px;
-  background: var(--klchat-primary);
-  color: var(--klchat-primary-foreground);
+  background: var(--aichat-primary);
+  color: var(--aichat-primary-foreground);
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: var(--klchat-shadow);
+  box-shadow: var(--aichat-shadow);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -99,18 +99,18 @@
   pointer-events: auto;
 }
 
-.klchat-button:hover {
-  background: var(--klchat-primary-hover);
+.aichat-button:hover {
+  background: var(--aichat-primary-hover);
   transform: scale(1.05);
-  box-shadow: var(--klchat-shadow-lg);
+  box-shadow: var(--aichat-shadow-lg);
 }
 
-.klchat-button:focus-visible {
-  outline: 2px solid var(--klchat-ring);
+.aichat-button:focus-visible {
+  outline: 2px solid var(--aichat-ring);
   outline-offset: 4px;
 }
 
-.klchat-button svg {
+.aichat-button svg {
   width: 24px;
   height: 24px;
   fill: currentColor;
@@ -118,12 +118,12 @@
   pointer-events: none !important; /* SVG should not block clicks */
 }
 
-.klchat-button.klchat-open svg {
+.aichat-button.aichat-open svg {
   transform: rotate(45deg);
 }
 
 /* Chat Container - SIMPLE SHOW/HIDE */
-.klchat-container {
+.aichat-container {
   position: fixed;
   bottom: 100px;
   right: 24px;
@@ -131,10 +131,10 @@
   height: 600px;
   max-width: calc(100vw - 48px);
   max-height: calc(100vh - 150px);
-  background: var(--klchat-background);
-  border-radius: var(--klchat-radius);
-  box-shadow: var(--klchat-shadow-lg);
-  border: 1px solid var(--klchat-border);
+  background: var(--aichat-background);
+  border-radius: var(--aichat-radius);
+  box-shadow: var(--aichat-shadow-lg);
+  border: 1px solid var(--aichat-border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -148,7 +148,7 @@
   visibility: hidden;
 }
 
-.klchat-container.klchat-open {
+.aichat-container.aichat-open {
   opacity: 1;
   transform: translateY(0) scale(1);
   pointer-events: auto;
@@ -156,23 +156,23 @@
 }
 
 /* Header */
-.klchat-header {
-  background: var(--klchat-primary);
-  color: var(--klchat-primary-foreground);
+.aichat-header {
+  background: var(--aichat-primary);
+  color: var(--aichat-primary-foreground);
   padding: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-radius: var(--klchat-radius) var(--klchat-radius) 0 0;
+  border-radius: var(--aichat-radius) var(--aichat-radius) 0 0;
 }
 
-.klchat-header-info {
+.aichat-header-info {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.klchat-avatar {
+.aichat-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -182,11 +182,11 @@
   justify-content: center;
   font-weight: bold;
   font-size: 16px;
-  color: var(--klchat-primary-foreground);
+  color: var(--aichat-primary-foreground);
   overflow: hidden;
 }
 
-.klchat-avatar-icon {
+.aichat-avatar-icon {
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -194,7 +194,7 @@
   display: block;
 }
 
-.klchat-title {
+.aichat-title {
   font-family: Arial, sans-serif;
   font-weight: bold;
   font-size: 16px;
@@ -202,35 +202,35 @@
   font-style: normal;
 }
 
-.klchat-subtitle {
+.aichat-subtitle {
   font-size: 12px;
   opacity: 0.8;
   margin: 2px 0 0 0;
 }
 
-.klchat-close {
+.aichat-close {
   background: none;
   border: none;
-  color: var(--klchat-primary-foreground);
+  color: var(--aichat-primary-foreground);
   cursor: pointer;
   padding: 8px;
-  border-radius: var(--klchat-radius);
+  border-radius: var(--aichat-radius);
   transition: background-color 0.2s ease;
   pointer-events: auto !important;
   z-index: 1002;
   position: relative;
 }
 
-.klchat-close:hover {
+.aichat-close:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.klchat-close:focus-visible {
+.aichat-close:focus-visible {
   outline: 2px solid white;
   outline-offset: 2px;
 }
 
-.klchat-close svg {
+.aichat-close svg {
   width: 20px;
   height: 20px;
   fill: currentColor;
@@ -238,7 +238,7 @@
 }
 
 /* Messages Container */
-.klchat-messages {
+.aichat-messages {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
@@ -260,40 +260,40 @@
   user-select: text;
 }
 
-.klchat-messages::-webkit-scrollbar {
+.aichat-messages::-webkit-scrollbar {
   width: 6px;
 }
 
-.klchat-messages::-webkit-scrollbar-track {
-  background: var(--klchat-surface);
+.aichat-messages::-webkit-scrollbar-track {
+  background: var(--aichat-surface);
   border-radius: 3px;
 }
 
-.klchat-messages::-webkit-scrollbar-thumb {
-  background: var(--klchat-border);
+.aichat-messages::-webkit-scrollbar-thumb {
+  background: var(--aichat-border);
   border-radius: 3px;
 }
 
-.klchat-messages::-webkit-scrollbar-thumb:hover {
-  background: var(--klchat-secondary);
+.aichat-messages::-webkit-scrollbar-thumb:hover {
+  background: var(--aichat-secondary);
 }
 
 /* Message Bubbles */
-.klchat-message {
+.aichat-message {
   display: flex;
   gap: 12px;
-  animation: klchat-message-in 0.3s ease;
+  animation: aichat-message-in 0.3s ease;
   position: relative;
   z-index: 2;
   pointer-events: auto;
   user-select: text;
 }
 
-.klchat-message.klchat-user {
+.aichat-message.aichat-user {
   flex-direction: row-reverse;
 }
 
-.klchat-message-avatar {
+.aichat-message-avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -306,7 +306,7 @@
   overflow: hidden;
 }
 
-.klchat-message-avatar .klchat-avatar-icon {
+.aichat-message-avatar .aichat-avatar-icon {
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -314,21 +314,21 @@
   display: block;
 }
 
-.klchat-message.klchat-bot .klchat-message-avatar {
-  background: var(--klchat-primary);
-  color: var(--klchat-primary-foreground);
+.aichat-message.aichat-bot .aichat-message-avatar {
+  background: var(--aichat-primary);
+  color: var(--aichat-primary-foreground);
 }
 
-.klchat-message.klchat-user .klchat-message-avatar {
-  background: var(--klchat-secondary);
-  color: var(--klchat-secondary-foreground);
+.aichat-message.aichat-user .aichat-message-avatar {
+  background: var(--aichat-secondary);
+  color: var(--aichat-secondary-foreground);
 }
 
-.klchat-message-content {
+.aichat-message-content {
   max-width: 75%;
-  background: var(--klchat-surface);
+  background: var(--aichat-surface);
   padding: 12px 16px;
-  border-radius: var(--klchat-radius);
+  border-radius: var(--aichat-radius);
   position: relative;
   word-wrap: break-word;
   pointer-events: auto;
@@ -338,31 +338,31 @@
   -ms-user-select: text;
 }
 
-.klchat-message.klchat-user .klchat-message-content {
-  background: var(--klchat-primary);
-  color: var(--klchat-primary-foreground);
+.aichat-message.aichat-user .aichat-message-content {
+  background: var(--aichat-primary);
+  color: var(--aichat-primary-foreground);
   border-bottom-right-radius: 4px;
 }
 
-.klchat-message.klchat-bot .klchat-message-content {
+.aichat-message.aichat-bot .aichat-message-content {
   border-bottom-left-radius: 4px;
 }
 
-.klchat-message-time {
+.aichat-message-time {
   font-size: 11px;
-  color: var(--klchat-text-muted);
+  color: var(--aichat-text-muted);
   margin-top: 4px;
   text-align: right;
   opacity: 0.8;
 }
 
-.klchat-message.klchat-user .klchat-message-time {
+.aichat-message.aichat-user .aichat-message-time {
   color: hsl(0, 0%, 98%, 0.7);
   text-align: left;
 }
 
 /* Typing Indicator */
-.klchat-typing {
+.aichat-typing {
   display: flex;
   gap: 12px;
   opacity: 0;
@@ -370,46 +370,46 @@
   transition: all 0.3s ease;
 }
 
-.klchat-typing.klchat-show {
+.aichat-typing.aichat-show {
   opacity: 1;
   transform: translateY(0);
 }
 
-.klchat-typing-content {
-  background: var(--klchat-surface);
+.aichat-typing-content {
+  background: var(--aichat-surface);
   padding: 12px 16px;
-  border-radius: var(--klchat-radius);
+  border-radius: var(--aichat-radius);
   border-bottom-left-radius: 4px;
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.klchat-typing-dot {
+.aichat-typing-dot {
   width: 6px;
   height: 6px;
-  background: var(--klchat-secondary);
+  background: var(--aichat-secondary);
   border-radius: 50%;
-  animation: klchat-typing-bounce 1.4s infinite ease-in-out;
+  animation: aichat-typing-bounce 1.4s infinite ease-in-out;
 }
 
-.klchat-typing-dot:nth-child(2) {
+.aichat-typing-dot:nth-child(2) {
   animation-delay: 0.2s;
 }
 
-.klchat-typing-dot:nth-child(3) {
+.aichat-typing-dot:nth-child(3) {
   animation-delay: 0.4s;
 }
 
 /* Input Area */
-.klchat-input-area {
+.aichat-input-area {
   padding: 20px;
-  border-top: 1px solid var(--klchat-border);
-  background: var(--klchat-background);
+  border-top: 1px solid var(--aichat-border);
+  background: var(--aichat-background);
   flex-shrink: 0;
 }
 
-.klchat-input-container {
+.aichat-input-container {
   display: flex;
   gap: 12px;
   align-items: flex-end;
@@ -417,10 +417,10 @@
   pointer-events: auto !important;
 }
 
-.klchat-input {
+.aichat-input {
   flex: 1;
-  border: 2px solid var(--klchat-input-border);
-  border-radius: var(--klchat-radius);
+  border: 2px solid var(--aichat-input-border);
+  border-radius: var(--aichat-radius);
   padding: 12px 16px;
   font-family: inherit;
   font-size: 14px;
@@ -430,8 +430,8 @@
   transition: all 0.2s ease;
   max-height: 100px;
   min-height: 44px;
-  background: var(--klchat-background);
-  color: var(--klchat-text);
+  background: var(--aichat-background);
+  color: var(--aichat-text);
   cursor: text !important;
   user-select: text !important;
   pointer-events: auto !important;
@@ -440,29 +440,29 @@
   -ms-user-select: text !important;
 }
 
-.klchat-input:focus {
-  border-color: var(--klchat-ring) !important;
+.aichat-input:focus {
+  border-color: var(--aichat-ring) !important;
   box-shadow: 0 0 0 3px hsl(24, 100%, 50%, 0.1) !important;
 }
 
-.klchat-input:focus-visible {
-  outline: 2px solid var(--klchat-ring);
+.aichat-input:focus-visible {
+  outline: 2px solid var(--aichat-ring);
   outline-offset: 2px;
 }
 
-.klchat-input:hover {
-  border-color: var(--klchat-primary);
+.aichat-input:hover {
+  border-color: var(--aichat-primary);
 }
 
-.klchat-input::placeholder {
-  color: var(--klchat-text-muted);
+.aichat-input::placeholder {
+  color: var(--aichat-text-muted);
 }
 
-.klchat-send {
-  background: var(--klchat-primary);
-  color: var(--klchat-primary-foreground);
+.aichat-send {
+  background: var(--aichat-primary);
+  color: var(--aichat-primary-foreground);
   border: none;
-  border-radius: var(--klchat-radius);
+  border-radius: var(--aichat-radius);
   width: 44px;
   height: 44px;
   cursor: pointer;
@@ -473,34 +473,34 @@
   flex-shrink: 0;
 }
 
-.klchat-send:hover:not(:disabled) {
-  background: var(--klchat-primary-hover);
+.aichat-send:hover:not(:disabled) {
+  background: var(--aichat-primary-hover);
   transform: scale(1.05);
 }
 
-.klchat-send:focus-visible {
-  outline: 2px solid var(--klchat-ring);
+.aichat-send:focus-visible {
+  outline: 2px solid var(--aichat-ring);
   outline-offset: 2px;
 }
 
-.klchat-send:disabled {
-  background: var(--klchat-secondary);
+.aichat-send:disabled {
+  background: var(--aichat-secondary);
   cursor: not-allowed;
   transform: none;
 }
 
-.klchat-send svg {
+.aichat-send svg {
   width: 20px;
   height: 20px;
   fill: currentColor;
 }
 
 /* Error State */
-.klchat-error {
-  background: var(--klchat-error);
+.aichat-error {
+  background: var(--aichat-error);
   color: hsl(0, 0%, 98%);
   padding: 12px 16px;
-  border-radius: var(--klchat-radius);
+  border-radius: var(--aichat-radius);
   margin: 16px 20px;
   font-size: 13px;
   display: flex;
@@ -508,7 +508,7 @@
   gap: 8px;
 }
 
-.klchat-error svg {
+.aichat-error svg {
   width: 16px;
   height: 16px;
   fill: currentColor;
@@ -516,76 +516,76 @@
 }
 
 /* Welcome Message */
-.klchat-welcome {
-  background: var(--klchat-surface);
-  border: 1px solid var(--klchat-border);
-  border-radius: var(--klchat-radius);
+.aichat-welcome {
+  background: var(--aichat-surface);
+  border: 1px solid var(--aichat-border);
+  border-radius: var(--aichat-radius);
   padding: 20px;
   margin: 0 0 16px 0;
   text-align: center;
 }
 
-.klchat-welcome h3 {
+.aichat-welcome h3 {
   margin: 0 0 8px 0;
   font-size: 16px;
   font-weight: bold;
-  color: var(--klchat-text);
+  color: var(--aichat-text);
 }
 
-.klchat-welcome p {
+.aichat-welcome p {
   margin: 0;
-  color: var(--klchat-text-muted);
+  color: var(--aichat-text-muted);
   font-size: 13px;
 }
 
 /* Contact Form Styles */
-.klchat-contact-form {
+.aichat-contact-form {
   margin-top: 12px;
   padding: 16px;
-  background: var(--klchat-background);
-  border: 1px solid var(--klchat-border);
-  border-radius: var(--klchat-radius);
+  background: var(--aichat-background);
+  border: 1px solid var(--aichat-border);
+  border-radius: var(--aichat-radius);
   position: relative;
   z-index: 10 !important;
   pointer-events: auto !important;
 }
 
-.klchat-contact-form * {
+.aichat-contact-form * {
   pointer-events: auto !important;
   z-index: 15 !important;
 }
 
-.klchat-form-message {
+.aichat-form-message {
   margin-bottom: 16px;
-  color: var(--klchat-text);
+  color: var(--aichat-text);
   line-height: 1.5;
 }
 
-.klchat-form-field {
+.aichat-form-field {
   margin-bottom: 16px;
   position: relative;
   z-index: 10;
   pointer-events: auto !important;
 }
 
-.klchat-form-field label {
+.aichat-form-field label {
   display: block;
   margin-bottom: 6px;
   font-weight: bold;
-  color: var(--klchat-text);
+  color: var(--aichat-text);
   font-size: 13px;
   pointer-events: auto !important;
 }
 
-.klchat-form-input {
+.aichat-form-input {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid var(--klchat-input-border);
-  border-radius: var(--klchat-radius);
+  border: 1px solid var(--aichat-input-border);
+  border-radius: var(--aichat-radius);
   font-size: 14px;
   font-family: inherit;
-  color: var(--klchat-text);
-  background: var(--klchat-background);
+  color: var(--aichat-text);
+  background: var(--aichat-background);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   position: relative;
   z-index: 20 !important;
@@ -596,29 +596,29 @@
   user-select: text !important;
 }
 
-.klchat-form-input:focus {
+.aichat-form-input:focus {
   outline: none;
-  border-color: var(--klchat-ring);
+  border-color: var(--aichat-ring);
   box-shadow: 0 0 0 3px hsl(24, 100%, 50%, 0.1);
 }
 
-.klchat-form-input:focus-visible {
-  outline: 2px solid var(--klchat-ring);
+.aichat-form-input:focus-visible {
+  outline: 2px solid var(--aichat-ring);
   outline-offset: 2px;
 }
 
-.klchat-form-input.klchat-form-error {
-  border-color: var(--klchat-error);
+.aichat-form-input.aichat-form-error {
+  border-color: var(--aichat-error);
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
-.klchat-form-submit {
+.aichat-form-submit {
   width: 100%;
   padding: 12px 16px;
-  background: var(--klchat-primary);
-  color: var(--klchat-primary-foreground);
+  background: var(--aichat-primary);
+  color: var(--aichat-primary-foreground);
   border: none;
-  border-radius: var(--klchat-radius);
+  border-radius: var(--aichat-radius);
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
@@ -628,22 +628,22 @@
   pointer-events: auto !important;
 }
 
-.klchat-form-submit:hover:not(:disabled) {
-  background: var(--klchat-primary-hover);
+.aichat-form-submit:hover:not(:disabled) {
+  background: var(--aichat-primary-hover);
 }
 
-.klchat-form-submit:focus-visible {
-  outline: 2px solid var(--klchat-ring);
+.aichat-form-submit:focus-visible {
+  outline: 2px solid var(--aichat-ring);
   outline-offset: 2px;
 }
 
-.klchat-form-submit:disabled {
-  background: var(--klchat-secondary);
+.aichat-form-submit:disabled {
+  background: var(--aichat-secondary);
   cursor: not-allowed;
 }
 
 /* Animations */
-@keyframes klchat-message-in {
+@keyframes aichat-message-in {
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -654,7 +654,7 @@
   }
 }
 
-@keyframes klchat-typing-bounce {
+@keyframes aichat-typing-bounce {
   0%, 60%, 100% {
     transform: translateY(0);
   }
@@ -665,49 +665,49 @@
 
 /* Mobile Responsive */
 @media (max-width: 480px) {
-  .klchat-container {
+  .aichat-container {
     bottom: 90px;
     right: 12px;
     left: 12px;
     width: auto;
     height: calc(100vh - 120px);
     max-width: none;
-    border-radius: var(--klchat-radius) var(--klchat-radius) 0 0;
+    border-radius: var(--aichat-radius) var(--aichat-radius) 0 0;
   }
   
-  .klchat-button {
+  .aichat-button {
     bottom: 16px;
     right: 16px;
   }
   
-  .klchat-message-content {
+  .aichat-message-content {
     max-width: 85%;
   }
   
-  .klchat-header {
+  .aichat-header {
     padding: 16px 20px;
   }
   
-  .klchat-messages {
+  .aichat-messages {
     padding: 16px;
   }
   
-  .klchat-input-area {
+  .aichat-input-area {
     padding: 16px;
   }
 }
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .klchat-widget {
-    --klchat-border: #000000;
-    --klchat-text-muted: #333333;
+  .aichat-widget {
+    --aichat-border: #000000;
+    --aichat-text-muted: #333333;
   }
 }
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .klchat-widget * {
+  .aichat-widget * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -726,7 +726,7 @@
   function detectApiBaseUrl() {
     try {
       // 1) Explicit override from host page
-      if (window.KLCHAT_API_URL) return window.KLCHAT_API_URL;
+      if (window.AICHAT_API_URL) return window.AICHAT_API_URL;
 
       // 2) Use the origin that served this widget script (works when embedded from chat domain)
       const scripts = document.getElementsByTagName('script');
@@ -738,11 +738,19 @@
         }
       }
 
-      // 3) Fallback: current page origin (works for local testing with served widget)
-      return window.location.origin;
+      // 3) Default production API URL
+      const defaultApiUrl = 'https://chat_ailabben.ailabben.no';
+      
+      // 4) Fallback: current page origin (only for localhost development)
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return window.location.origin;
+      }
+
+      // 5) Production fallback: use default API URL
+      return defaultApiUrl;
     } catch (e) {
-      // Final fallback - keep previous default in case of any error
-      return window.location.origin;
+      // Final fallback - use production API URL
+      return 'https://chat_ailabben.ailabben.no';
     }
   }
 
@@ -757,9 +765,9 @@
 
   // Debug which API base is used
   try {
-    console.log('KLChatbot API base:', CONFIG.API_BASE_URL);
-    if (window.KLCHAT_WIDGET_VERSION) {
-      console.log('KLChatbot widget version:', window.KLCHAT_WIDGET_VERSION);
+    console.log('AIChatbot API base:', CONFIG.API_BASE_URL);
+    if (window.AICHAT_WIDGET_VERSION) {
+      console.log('AIChatbot widget version:', window.AICHAT_WIDGET_VERSION);
     }
   } catch {}
 
@@ -792,7 +800,7 @@
   function getAvatarIcon() {
     // Try to load from API base URL first, then fallback to relative path
     const iconPath = `${CONFIG.API_BASE_URL}/images/AI Labben ikon 64x64.svg`;
-    return `<img src="${iconPath}" alt="AI Labben" class="klchat-avatar-icon" />`;
+    return `<img src="${iconPath}" alt="AI Labben" class="aichat-avatar-icon" />`;
   }
 
   function debounce(func, wait) {
@@ -888,11 +896,11 @@
   function createWidget() {
     // Create widget container
     const widget = document.createElement('div');
-    widget.className = 'klchat-widget';
+    widget.className = 'aichat-widget';
     
     // Create chat button OUTSIDE the main widget container
     const chatButton = document.createElement('button');
-    chatButton.className = 'klchat-button';
+    chatButton.className = 'aichat-button';
     chatButton.setAttribute('aria-label', 'Open chat');
     chatButton.innerHTML = `
       <svg viewBox="0 0 24 24">
@@ -902,47 +910,47 @@
     
     // Create chat container
     const chatContainer = document.createElement('div');
-    chatContainer.className = 'klchat-container';
+    chatContainer.className = 'aichat-container';
     chatContainer.innerHTML = `
-      <div class="klchat-header">
-          <div class="klchat-header-info">
-          <div class="klchat-avatar">${getAvatarIcon()}</div>
+      <div class="aichat-header">
+          <div class="aichat-header-info">
+          <div class="aichat-avatar">${getAvatarIcon()}</div>
           <div>
-            <h3 class="klchat-title">AI Labben</h3>
-            <p class="klchat-subtitle">Vi hjelper deg gjerne!</p>
+            <h3 class="aichat-title">AI Labben</h3>
+            <p class="aichat-subtitle">Vi hjelper deg gjerne!</p>
           </div>
         </div>
-        <button class="klchat-close" aria-label="Close chat">
+        <button class="aichat-close" aria-label="Close chat">
           <svg viewBox="0 0 24 24">
             <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
           </svg>
         </button>
       </div>
       
-      <div class="klchat-messages" id="klchat-messages">
+      <div class="aichat-messages" id="aichat-messages">
       </div>
       
-      <div class="klchat-typing" id="klchat-typing">
-        <div class="klchat-message-avatar">
+      <div class="aichat-typing" id="aichat-typing">
+        <div class="aichat-message-avatar">
           ${getAvatarIcon()}
         </div>
-        <div class="klchat-typing-content">
-          <div class="klchat-typing-dot"></div>
-          <div class="klchat-typing-dot"></div>
-          <div class="klchat-typing-dot"></div>
+        <div class="aichat-typing-content">
+          <div class="aichat-typing-dot"></div>
+          <div class="aichat-typing-dot"></div>
+          <div class="aichat-typing-dot"></div>
         </div>
       </div>
       
-      <div class="klchat-input-area">
-        <div class="klchat-input-container">
+      <div class="aichat-input-area">
+        <div class="aichat-input-container">
           <textarea 
-            class="klchat-input" 
-            id="klchat-input"
+            class="aichat-input" 
+            id="aichat-input"
             placeholder="Skriv din melding..."
             rows="1"
             maxlength="${CONFIG.MAX_MESSAGE_LENGTH}"
           ></textarea>
-          <button class="klchat-send" id="klchat-send" aria-label="Send message">
+          <button class="aichat-send" id="aichat-send" aria-label="Send message">
             <svg viewBox="0 0 24 24">
               <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
             </svg>
@@ -960,7 +968,7 @@
 
   function createMessage(content, isUser = false, timestamp = new Date()) {
     const messageDiv = document.createElement('div');
-    messageDiv.className = `klchat-message ${isUser ? 'klchat-user' : 'klchat-bot'}`;
+    messageDiv.className = `aichat-message ${isUser ? 'aichat-user' : 'aichat-bot'}`;
     
     // Use SVG icon for bot messages, 'U' for user messages
     const avatar = isUser ? 'U' : getAvatarIcon();
@@ -978,10 +986,10 @@
     }
     
     messageDiv.innerHTML = `
-      <div class="klchat-message-avatar">${avatar}</div>
-      <div class="klchat-message-content">
+      <div class="aichat-message-avatar">${avatar}</div>
+      <div class="aichat-message-content">
         ${messageContent}
-        <div class="klchat-message-time">${timeStr}</div>
+        <div class="aichat-message-time">${timeStr}</div>
       </div>
     `;
 
@@ -989,12 +997,12 @@
   }
 
   function createContactForm(formData) {
-    const formId = 'klchat-contact-form-' + Date.now();
+    const formId = 'aichat-contact-form-' + Date.now();
     
     let fieldsHtml = '';
     formData.form.fields.forEach(field => {
       fieldsHtml += `
-        <div class="klchat-form-field">
+        <div class="aichat-form-field">
           <label for="${formId}-${field.name}">${field.label}${field.required ? ' *' : ''}</label>
           <input 
             type="${field.type}" 
@@ -1002,23 +1010,23 @@
             name="${field.name}"
             placeholder="${field.placeholder || ''}"
             ${field.required ? 'required' : ''}
-            class="klchat-form-input"
+            class="aichat-form-input"
           />
         </div>
       `;
     });
     
     return `
-      <div class="klchat-form-message">${formData.message}</div>
-      <form class="klchat-contact-form" data-form-id="${formId}">
+      <div class="aichat-form-message">${formData.message}</div>
+      <form class="aichat-contact-form" data-form-id="${formId}">
         ${fieldsHtml}
-        <button type="submit" class="klchat-form-submit">${formData.form.submitText}</button>
+        <button type="submit" class="aichat-form-submit">${formData.form.submitText}</button>
       </form>
     `;
   }
 
   function attachFormEventListeners(messageElement) {
-    const form = messageElement.querySelector('.klchat-contact-form');
+    const form = messageElement.querySelector('.aichat-contact-form');
     if (!form) return;
 
     form.addEventListener('submit', async (e) => {
@@ -1038,10 +1046,10 @@
       
       requiredInputs.forEach(input => {
         if (!input.value.trim()) {
-          input.classList.add('klchat-form-error');
+          input.classList.add('aichat-form-error');
           isValid = false;
         } else {
-          input.classList.remove('klchat-form-error');
+          input.classList.remove('aichat-form-error');
         }
       });
       
@@ -1050,13 +1058,13 @@
       }
       
       // Disable form
-      const submitButton = form.querySelector('.klchat-form-submit');
+      const submitButton = form.querySelector('.aichat-form-submit');
       submitButton.disabled = true;
       submitButton.textContent = 'Sender...';
       
       try {
         // Send form data as JSON message
-        const messagesContainer = document.getElementById('klchat-messages');
+        const messagesContainer = document.getElementById('aichat-messages');
         const userMessage = createMessage(`Navn: ${data.user_name}, E-post: ${data.user_email}`, true);
         messagesContainer.appendChild(userMessage);
         
@@ -1099,9 +1107,9 @@
   }
 
   function showError(message) {
-    const messagesContainer = document.getElementById('klchat-messages');
+    const messagesContainer = document.getElementById('aichat-messages');
     const errorDiv = document.createElement('div');
-    errorDiv.className = 'klchat-error';
+    errorDiv.className = 'aichat-error';
     errorDiv.innerHTML = `
       <svg viewBox="0 0 24 24">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
@@ -1121,14 +1129,14 @@
   }
 
   function showTyping(show = true) {
-    const typingIndicator = document.getElementById('klchat-typing');
-    const messagesContainer = document.getElementById('klchat-messages');
+    const typingIndicator = document.getElementById('aichat-typing');
+    const messagesContainer = document.getElementById('aichat-messages');
     
     if (show) {
-      typingIndicator.classList.add('klchat-show');
+      typingIndicator.classList.add('aichat-show');
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     } else {
-      typingIndicator.classList.remove('klchat-show');
+      typingIndicator.classList.remove('aichat-show');
     }
   }
 
@@ -1142,8 +1150,8 @@
   function toggleWidget() {
     console.log('toggleWidget called, current state:', state.isOpen);
     
-    const container = document.querySelector('.klchat-container');
-    const button = document.querySelector('.klchat-button');
+    const container = document.querySelector('.aichat-container');
+    const button = document.querySelector('.aichat-button');
     
     if (!container) {
       console.error('Chat container not found!');
@@ -1154,22 +1162,22 @@
     state.isOpen = !state.isOpen;
     
     if (state.isOpen) {
-      container.classList.add('klchat-open');
-      button?.classList.add('klchat-open');
+      container.classList.add('aichat-open');
+      button?.classList.add('aichat-open');
       console.log('Opening chat...');
       
       // Sørg for at proaktiv melding vises hver gang chatten åpnes
       ensureProactiveMessage();
       
       setTimeout(() => {
-        const input = document.getElementById('klchat-input');
+        const input = document.getElementById('aichat-input');
         if (input) {
           input.focus();
         }
       }, 500);
     } else {
-      container.classList.remove('klchat-open');
-      button?.classList.remove('klchat-open');
+      container.classList.remove('aichat-open');
+      button?.classList.remove('aichat-open');
       console.log('Closing chat...');
       
       // Hvis chatten ble lukket (fra åpen til lukket), marker som manuelt lukket
@@ -1182,8 +1190,8 @@
   }
 
   async function handleSendMessage() {
-    const input = document.getElementById('klchat-input');
-    const sendButton = document.getElementById('klchat-send');
+    const input = document.getElementById('aichat-input');
+    const sendButton = document.getElementById('aichat-send');
     const message = input.value.trim();
     
     if (!message || state.isLoading) return;
@@ -1194,7 +1202,7 @@
     sendButton.disabled = true;
     
     // Add user message to UI
-    const messagesContainer = document.getElementById('klchat-messages');
+    const messagesContainer = document.getElementById('aichat-messages');
     const userMessage = createMessage(message, true);
     messagesContainer.appendChild(userMessage);
     
@@ -1254,11 +1262,11 @@
   // Initialize widget
   async function initWidget(config = {}) {
     // Prevent double initialization - more robust check
-    if (window.KLCHAT_INITIALIZED) {
-      console.log('KLChatbot: Already initialized, skipping...');
+    if (window.AICHAT_INITIALIZED) {
+      console.log('AIChatbot: Already initialized, skipping...');
       return;
     }
-    window.KLCHAT_INITIALIZED = true;
+    window.AICHAT_INITIALIZED = true;
     
     // Customer ID hentes fra API (hardkodet i backend)
     state.sessionId = generateSessionId();
@@ -1267,7 +1275,7 @@
     state.customerConfig = await loadCustomerConfig();
     
     if (!state.customerConfig) {
-      console.error('KLChatbot: Failed to load customer configuration');
+      console.error('AIChatbot: Failed to load customer configuration');
       return;
     }
     
@@ -1288,8 +1296,8 @@
       const widget = state.customerConfig.widget;
       
       // Update title and subtitle
-      const title = document.querySelector('.klchat-title');
-      const subtitle = document.querySelector('.klchat-subtitle');
+      const title = document.querySelector('.aichat-title');
+      const subtitle = document.querySelector('.aichat-subtitle');
       
       if (widget.name) title.textContent = widget.name;
       if (widget.subtitle) subtitle.textContent = widget.subtitle;
@@ -1302,15 +1310,15 @@
       
       // Apply custom primary color if set
       if (widget.primaryColor) {
-        document.documentElement.style.setProperty('--klchat-primary', widget.primaryColor);
+        document.documentElement.style.setProperty('--aichat-primary', widget.primaryColor);
       }
     }
 
     // Event listeners
-    const button = document.querySelector('.klchat-button');
-    const closeButton = document.querySelector('.klchat-close');
-    const input = document.getElementById('klchat-input');
-    const sendButton = document.getElementById('klchat-send');
+    const button = document.querySelector('.aichat-button');
+    const closeButton = document.querySelector('.aichat-close');
+    const input = document.getElementById('aichat-input');
+    const sendButton = document.getElementById('aichat-send');
 
     // Debug logging
     console.log('Button found:', button);
@@ -1365,7 +1373,7 @@
     }
 
     // Enable natural scrolling in messages area (remove custom wheel handling)
-    const messagesContainer = document.getElementById('klchat-messages');
+    const messagesContainer = document.getElementById('aichat-messages');
     if (messagesContainer) {
       console.log('Enabling natural scrolling...');
       
@@ -1392,10 +1400,10 @@
     setTimeout(() => {
       console.log('=== DEBUGGING WIDGET LAYERS ===');
       
-      const widget = document.querySelector('.klchat-widget');
-      const container = document.querySelector('.klchat-container');
-      const messages = document.querySelector('.klchat-messages');
-      const closeBtn = document.querySelector('.klchat-close');
+      const widget = document.querySelector('.aichat-widget');
+      const container = document.querySelector('.aichat-container');
+      const messages = document.querySelector('.aichat-messages');
+      const closeBtn = document.querySelector('.aichat-close');
       
       console.log('Widget z-index:', window.getComputedStyle(widget).zIndex);
       console.log('Container z-index:', window.getComputedStyle(container).zIndex);
@@ -1413,7 +1421,7 @@
       console.log('Element at messages position:', topElementMessages);
       
       // Add temporary visual debugging
-      if (window.KLCHAT_DEBUG) {
+      if (window.AICHAT_DEBUG) {
         widget.style.border = '3px solid red';
         container.style.border = '2px solid blue';
         messages.style.border = '2px solid green';
@@ -1423,7 +1431,7 @@
       console.log('=== END DEBUG ===');
     }, 1000);
 
-    console.log('KLChatbot initialized successfully for customer:', state.customerId);
+    console.log('AIChatbot initialized successfully for customer:', state.customerId);
     
     // 🚀 Proaktiv chat - åpne automatisk med introduksjonsmelding
     initProactiveChat();
@@ -1437,17 +1445,17 @@
       return;
     }
     
-    const messagesContainer = document.getElementById('klchat-messages');
+    const messagesContainer = document.getElementById('aichat-messages');
     if (!messagesContainer) {
       return;
     }
     
     // Sjekk om meldingen allerede finnes i DOM (sjekk alle meldinger)
-    const existingMessages = messagesContainer.querySelectorAll('.klchat-message.klchat-bot');
+    const existingMessages = messagesContainer.querySelectorAll('.aichat-message.aichat-bot');
     let messageExistsInDOM = false;
     
     existingMessages.forEach(msg => {
-      const content = msg.querySelector('.klchat-message-content');
+      const content = msg.querySelector('.aichat-message-content');
       if (content) {
         // Fjern HTML tags og sammenlign tekst
         const textContent = content.textContent.trim();
@@ -1477,11 +1485,11 @@
     // Vent litt slik at animasjonen blir ferdig
     setTimeout(() => {
       // Dobbeltsjekk igjen etter timeout (i tilfelle flere kall)
-      const existingMessagesAfterWait = messagesContainer.querySelectorAll('.klchat-message.klchat-bot');
+      const existingMessagesAfterWait = messagesContainer.querySelectorAll('.aichat-message.aichat-bot');
       let stillExists = false;
       
       existingMessagesAfterWait.forEach(msg => {
-        const content = msg.querySelector('.klchat-message-content');
+        const content = msg.querySelector('.aichat-message-content');
         if (content) {
           const textContent = content.textContent.trim();
           const proactiveText = proactiveConfig.message.trim();
@@ -1497,7 +1505,7 @@
       }
       
       // Fjern welcome-meldingen hvis den finnes
-      const welcomeMsg = messagesContainer.querySelector('.klchat-welcome');
+      const welcomeMsg = messagesContainer.querySelector('.aichat-welcome');
       if (welcomeMsg) {
         welcomeMsg.remove();
       }
@@ -1615,7 +1623,7 @@
   }
 
   // Public API
-  window.KLChatbot = {
+  window.AIChatbot = {
     init: initWidget,
     open: () => {
       if (!state.isOpen) toggleWidget();
@@ -1630,7 +1638,7 @@
     // Debug function to force button click
     forceClick: () => {
       console.log('Force clicking button...');
-      const btn = document.querySelector('.klchat-button');
+      const btn = document.querySelector('.aichat-button');
       if (btn) {
         console.log('Button found, triggering toggle');
         toggleWidget();
@@ -1641,8 +1649,8 @@
   };
 
   // Auto-initialize (no config needed since customer_id is hardcoded in backend)
-  if (window.KLCHAT_AUTO_INIT !== false) {
-    window.KLChatbot.init();
+  if (window.AICHAT_AUTO_INIT !== false) {
+    window.AIChatbot.init();
   }
 
 })();

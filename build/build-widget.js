@@ -30,19 +30,19 @@ const widgetContent = `
 // Generated: ${new Date().toISOString()}
 
 // Expose build version for debugging
-(function(){ try { window.KLCHAT_WIDGET_VERSION = 'v2.0.1-${new Date().toISOString()}'; } catch(e){} })();
+(function(){ try { window.AICHAT_WIDGET_VERSION = 'v2.0.1-${new Date().toISOString()}'; } catch(e){} })();
 
 // Inject CSS
 (function() {
   'use strict';
   
   // Check if styles are already injected
-  if (document.getElementById('klchat-widget-styles')) {
+  if (document.getElementById('aichat-widget-styles')) {
     return;
   }
   
   const style = document.createElement('style');
-  style.id = 'klchat-widget-styles';
+  style.id = 'aichat-widget-styles';
   style.textContent = \`${cssContent.replace(/`/g, '\\`')}\`;
   document.head.appendChild(style);
 })();
@@ -114,7 +114,7 @@ const testHtmlContent = `<!DOCTYPE html>
         
         <pre><code>&lt;script src="http://localhost:3000/widget.js"&gt;&lt;/script&gt;
 &lt;script&gt;
-  KLChatbot.init(); // Ingen konfigurasjon nødvendig!
+  AIChatbot.init(); // Ingen konfigurasjon nødvendig!
 &lt;/script&gt;</code></pre>
         
         <h2>API Endpoints</h2>
@@ -133,10 +133,10 @@ const testHtmlContent = `<!DOCTYPE html>
     <script src="./widget.js"></script>
     <script>
         // Initialize (no config needed - customer_id is hardcoded in backend)
-        KLChatbot.init();
+        AIChatbot.init();
         
         // Log widget API for testing
-        console.log('KLChatbot API:', window.KLChatbot);
+        console.log('AIChatbot API:', window.AIChatbot);
     </script>
 </body>
 </html>`;

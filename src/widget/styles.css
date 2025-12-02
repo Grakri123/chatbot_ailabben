@@ -1,44 +1,44 @@
 /* AI Chatbot Widget Styles - Matches glocal.css design system */
-.klchat-widget {
+.aichat-widget {
   /* Primary colors from glocal.css */
-  --klchat-primary: hsl(24, 100%, 50%); /* #ff6b00 / orange-500 */
-  --klchat-primary-hover: hsl(24, 100%, 45%); /* Darker orange for hover */
-  --klchat-primary-foreground: hsl(0, 0%, 98%); /* Almost white */
+  --aichat-primary: hsl(24, 100%, 50%); /* #ff6b00 / orange-500 */
+  --aichat-primary-hover: hsl(24, 100%, 45%); /* Darker orange for hover */
+  --aichat-primary-foreground: hsl(0, 0%, 98%); /* Almost white */
   
   /* Background and surface colors */
-  --klchat-background: hsl(0, 0%, 100%); /* White */
-  --klchat-surface: hsl(0, 0%, 96.1%); /* Secondary color */
+  --aichat-background: hsl(0, 0%, 100%); /* White */
+  --aichat-surface: hsl(0, 0%, 96.1%); /* Secondary color */
   
   /* Text colors */
-  --klchat-text: hsl(0, 0%, 3.9%); /* Foreground - almost black */
-  --klchat-text-muted: hsl(0, 0%, 45.1%); /* Muted foreground */
+  --aichat-text: hsl(0, 0%, 3.9%); /* Foreground - almost black */
+  --aichat-text-muted: hsl(0, 0%, 45.1%); /* Muted foreground */
   
   /* Secondary and accent */
-  --klchat-secondary: hsl(0, 0%, 96.1%); /* Secondary color */
-  --klchat-secondary-foreground: hsl(0, 0%, 9%); /* Dark gray */
+  --aichat-secondary: hsl(0, 0%, 96.1%); /* Secondary color */
+  --aichat-secondary-foreground: hsl(0, 0%, 9%); /* Dark gray */
   
   /* Border and input */
-  --klchat-border: hsl(0, 0%, 89.8%); /* Border color */
-  --klchat-input-border: hsl(0, 0%, 89.8%); /* Input border */
+  --aichat-border: hsl(0, 0%, 89.8%); /* Border color */
+  --aichat-input-border: hsl(0, 0%, 89.8%); /* Input border */
   
   /* Ring color (focus) */
-  --klchat-ring: hsl(24, 100%, 50%); /* Primary color for focus rings */
+  --aichat-ring: hsl(24, 100%, 50%); /* Primary color for focus rings */
   
   /* Status colors */
-  --klchat-success: hsl(142, 76%, 36%); /* Green */
-  --klchat-error: hsl(0, 84.2%, 60.2%); /* Destructive color from glocal.css */
+  --aichat-success: hsl(142, 76%, 36%); /* Green */
+  --aichat-error: hsl(0, 84.2%, 60.2%); /* Destructive color from glocal.css */
   
   /* Border radius */
-  --klchat-radius: 0.5rem; /* 8px - matches glocal.css */
+  --aichat-radius: 0.5rem; /* 8px - matches glocal.css */
   
   /* Shadows */
-  --klchat-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --klchat-shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --aichat-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --aichat-shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   
   font-family: Arial, sans-serif;
   font-size: 14px;
   line-height: 1.5;
-  color: var(--klchat-text);
+  color: var(--aichat-text);
   box-sizing: border-box;
   
   /* SIMPLE: No container styling - only children matter */
@@ -50,26 +50,26 @@
 }
 
 /* ISOLATION: All child elements inherit isolation */
-.klchat-widget *, 
-.klchat-widget *::before, 
-.klchat-widget *::after {
+.aichat-widget *, 
+.aichat-widget *::before, 
+.aichat-widget *::after {
   box-sizing: border-box;
   pointer-events: inherit; /* Inherit isolation from parent */
 }
 
 /* Chat Button - SIMPLE AND CLEAN */
-.klchat-button {
+.aichat-button {
   position: fixed;
   bottom: 24px;
   right: 24px;
   width: 60px;
   height: 60px;
-  background: var(--klchat-primary);
-  color: var(--klchat-primary-foreground);
+  background: var(--aichat-primary);
+  color: var(--aichat-primary-foreground);
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: var(--klchat-shadow);
+  box-shadow: var(--aichat-shadow);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -80,18 +80,18 @@
   pointer-events: auto;
 }
 
-.klchat-button:hover {
-  background: var(--klchat-primary-hover);
+.aichat-button:hover {
+  background: var(--aichat-primary-hover);
   transform: scale(1.05);
-  box-shadow: var(--klchat-shadow-lg);
+  box-shadow: var(--aichat-shadow-lg);
 }
 
-.klchat-button:focus-visible {
-  outline: 2px solid var(--klchat-ring);
+.aichat-button:focus-visible {
+  outline: 2px solid var(--aichat-ring);
   outline-offset: 4px;
 }
 
-.klchat-button svg {
+.aichat-button svg {
   width: 24px;
   height: 24px;
   fill: currentColor;
@@ -99,12 +99,12 @@
   pointer-events: none !important; /* SVG should not block clicks */
 }
 
-.klchat-button.klchat-open svg {
+.aichat-button.aichat-open svg {
   transform: rotate(45deg);
 }
 
 /* Chat Container - SIMPLE SHOW/HIDE */
-.klchat-container {
+.aichat-container {
   position: fixed;
   bottom: 100px;
   right: 24px;
@@ -112,10 +112,10 @@
   height: 600px;
   max-width: calc(100vw - 48px);
   max-height: calc(100vh - 150px);
-  background: var(--klchat-background);
-  border-radius: var(--klchat-radius);
-  box-shadow: var(--klchat-shadow-lg);
-  border: 1px solid var(--klchat-border);
+  background: var(--aichat-background);
+  border-radius: var(--aichat-radius);
+  box-shadow: var(--aichat-shadow-lg);
+  border: 1px solid var(--aichat-border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -129,7 +129,7 @@
   visibility: hidden;
 }
 
-.klchat-container.klchat-open {
+.aichat-container.aichat-open {
   opacity: 1;
   transform: translateY(0) scale(1);
   pointer-events: auto;
@@ -137,23 +137,23 @@
 }
 
 /* Header */
-.klchat-header {
-  background: var(--klchat-primary);
-  color: var(--klchat-primary-foreground);
+.aichat-header {
+  background: var(--aichat-primary);
+  color: var(--aichat-primary-foreground);
   padding: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-radius: var(--klchat-radius) var(--klchat-radius) 0 0;
+  border-radius: var(--aichat-radius) var(--aichat-radius) 0 0;
 }
 
-.klchat-header-info {
+.aichat-header-info {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.klchat-avatar {
+.aichat-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -163,11 +163,11 @@
   justify-content: center;
   font-weight: bold;
   font-size: 16px;
-  color: var(--klchat-primary-foreground);
+  color: var(--aichat-primary-foreground);
   overflow: hidden;
 }
 
-.klchat-avatar-icon {
+.aichat-avatar-icon {
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -175,7 +175,7 @@
   display: block;
 }
 
-.klchat-title {
+.aichat-title {
   font-family: Arial, sans-serif;
   font-weight: bold;
   font-size: 16px;
@@ -183,35 +183,35 @@
   font-style: normal;
 }
 
-.klchat-subtitle {
+.aichat-subtitle {
   font-size: 12px;
   opacity: 0.8;
   margin: 2px 0 0 0;
 }
 
-.klchat-close {
+.aichat-close {
   background: none;
   border: none;
-  color: var(--klchat-primary-foreground);
+  color: var(--aichat-primary-foreground);
   cursor: pointer;
   padding: 8px;
-  border-radius: var(--klchat-radius);
+  border-radius: var(--aichat-radius);
   transition: background-color 0.2s ease;
   pointer-events: auto !important;
   z-index: 1002;
   position: relative;
 }
 
-.klchat-close:hover {
+.aichat-close:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.klchat-close:focus-visible {
+.aichat-close:focus-visible {
   outline: 2px solid white;
   outline-offset: 2px;
 }
 
-.klchat-close svg {
+.aichat-close svg {
   width: 20px;
   height: 20px;
   fill: currentColor;
@@ -219,7 +219,7 @@
 }
 
 /* Messages Container */
-.klchat-messages {
+.aichat-messages {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
@@ -241,40 +241,40 @@
   user-select: text;
 }
 
-.klchat-messages::-webkit-scrollbar {
+.aichat-messages::-webkit-scrollbar {
   width: 6px;
 }
 
-.klchat-messages::-webkit-scrollbar-track {
-  background: var(--klchat-surface);
+.aichat-messages::-webkit-scrollbar-track {
+  background: var(--aichat-surface);
   border-radius: 3px;
 }
 
-.klchat-messages::-webkit-scrollbar-thumb {
-  background: var(--klchat-border);
+.aichat-messages::-webkit-scrollbar-thumb {
+  background: var(--aichat-border);
   border-radius: 3px;
 }
 
-.klchat-messages::-webkit-scrollbar-thumb:hover {
-  background: var(--klchat-secondary);
+.aichat-messages::-webkit-scrollbar-thumb:hover {
+  background: var(--aichat-secondary);
 }
 
 /* Message Bubbles */
-.klchat-message {
+.aichat-message {
   display: flex;
   gap: 12px;
-  animation: klchat-message-in 0.3s ease;
+  animation: aichat-message-in 0.3s ease;
   position: relative;
   z-index: 2;
   pointer-events: auto;
   user-select: text;
 }
 
-.klchat-message.klchat-user {
+.aichat-message.aichat-user {
   flex-direction: row-reverse;
 }
 
-.klchat-message-avatar {
+.aichat-message-avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -287,7 +287,7 @@
   overflow: hidden;
 }
 
-.klchat-message-avatar .klchat-avatar-icon {
+.aichat-message-avatar .aichat-avatar-icon {
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -295,21 +295,21 @@
   display: block;
 }
 
-.klchat-message.klchat-bot .klchat-message-avatar {
-  background: var(--klchat-primary);
-  color: var(--klchat-primary-foreground);
+.aichat-message.aichat-bot .aichat-message-avatar {
+  background: var(--aichat-primary);
+  color: var(--aichat-primary-foreground);
 }
 
-.klchat-message.klchat-user .klchat-message-avatar {
-  background: var(--klchat-secondary);
-  color: var(--klchat-secondary-foreground);
+.aichat-message.aichat-user .aichat-message-avatar {
+  background: var(--aichat-secondary);
+  color: var(--aichat-secondary-foreground);
 }
 
-.klchat-message-content {
+.aichat-message-content {
   max-width: 75%;
-  background: var(--klchat-surface);
+  background: var(--aichat-surface);
   padding: 12px 16px;
-  border-radius: var(--klchat-radius);
+  border-radius: var(--aichat-radius);
   position: relative;
   word-wrap: break-word;
   pointer-events: auto;
@@ -319,31 +319,31 @@
   -ms-user-select: text;
 }
 
-.klchat-message.klchat-user .klchat-message-content {
-  background: var(--klchat-primary);
-  color: var(--klchat-primary-foreground);
+.aichat-message.aichat-user .aichat-message-content {
+  background: var(--aichat-primary);
+  color: var(--aichat-primary-foreground);
   border-bottom-right-radius: 4px;
 }
 
-.klchat-message.klchat-bot .klchat-message-content {
+.aichat-message.aichat-bot .aichat-message-content {
   border-bottom-left-radius: 4px;
 }
 
-.klchat-message-time {
+.aichat-message-time {
   font-size: 11px;
-  color: var(--klchat-text-muted);
+  color: var(--aichat-text-muted);
   margin-top: 4px;
   text-align: right;
   opacity: 0.8;
 }
 
-.klchat-message.klchat-user .klchat-message-time {
+.aichat-message.aichat-user .aichat-message-time {
   color: hsl(0, 0%, 98%, 0.7);
   text-align: left;
 }
 
 /* Typing Indicator */
-.klchat-typing {
+.aichat-typing {
   display: flex;
   gap: 12px;
   opacity: 0;
@@ -351,46 +351,46 @@
   transition: all 0.3s ease;
 }
 
-.klchat-typing.klchat-show {
+.aichat-typing.aichat-show {
   opacity: 1;
   transform: translateY(0);
 }
 
-.klchat-typing-content {
-  background: var(--klchat-surface);
+.aichat-typing-content {
+  background: var(--aichat-surface);
   padding: 12px 16px;
-  border-radius: var(--klchat-radius);
+  border-radius: var(--aichat-radius);
   border-bottom-left-radius: 4px;
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.klchat-typing-dot {
+.aichat-typing-dot {
   width: 6px;
   height: 6px;
-  background: var(--klchat-secondary);
+  background: var(--aichat-secondary);
   border-radius: 50%;
-  animation: klchat-typing-bounce 1.4s infinite ease-in-out;
+  animation: aichat-typing-bounce 1.4s infinite ease-in-out;
 }
 
-.klchat-typing-dot:nth-child(2) {
+.aichat-typing-dot:nth-child(2) {
   animation-delay: 0.2s;
 }
 
-.klchat-typing-dot:nth-child(3) {
+.aichat-typing-dot:nth-child(3) {
   animation-delay: 0.4s;
 }
 
 /* Input Area */
-.klchat-input-area {
+.aichat-input-area {
   padding: 20px;
-  border-top: 1px solid var(--klchat-border);
-  background: var(--klchat-background);
+  border-top: 1px solid var(--aichat-border);
+  background: var(--aichat-background);
   flex-shrink: 0;
 }
 
-.klchat-input-container {
+.aichat-input-container {
   display: flex;
   gap: 12px;
   align-items: flex-end;
@@ -398,10 +398,10 @@
   pointer-events: auto !important;
 }
 
-.klchat-input {
+.aichat-input {
   flex: 1;
-  border: 2px solid var(--klchat-input-border);
-  border-radius: var(--klchat-radius);
+  border: 2px solid var(--aichat-input-border);
+  border-radius: var(--aichat-radius);
   padding: 12px 16px;
   font-family: inherit;
   font-size: 14px;
@@ -411,8 +411,8 @@
   transition: all 0.2s ease;
   max-height: 100px;
   min-height: 44px;
-  background: var(--klchat-background);
-  color: var(--klchat-text);
+  background: var(--aichat-background);
+  color: var(--aichat-text);
   cursor: text !important;
   user-select: text !important;
   pointer-events: auto !important;
@@ -421,29 +421,29 @@
   -ms-user-select: text !important;
 }
 
-.klchat-input:focus {
-  border-color: var(--klchat-ring) !important;
+.aichat-input:focus {
+  border-color: var(--aichat-ring) !important;
   box-shadow: 0 0 0 3px hsl(24, 100%, 50%, 0.1) !important;
 }
 
-.klchat-input:focus-visible {
-  outline: 2px solid var(--klchat-ring);
+.aichat-input:focus-visible {
+  outline: 2px solid var(--aichat-ring);
   outline-offset: 2px;
 }
 
-.klchat-input:hover {
-  border-color: var(--klchat-primary);
+.aichat-input:hover {
+  border-color: var(--aichat-primary);
 }
 
-.klchat-input::placeholder {
-  color: var(--klchat-text-muted);
+.aichat-input::placeholder {
+  color: var(--aichat-text-muted);
 }
 
-.klchat-send {
-  background: var(--klchat-primary);
-  color: var(--klchat-primary-foreground);
+.aichat-send {
+  background: var(--aichat-primary);
+  color: var(--aichat-primary-foreground);
   border: none;
-  border-radius: var(--klchat-radius);
+  border-radius: var(--aichat-radius);
   width: 44px;
   height: 44px;
   cursor: pointer;
@@ -454,34 +454,34 @@
   flex-shrink: 0;
 }
 
-.klchat-send:hover:not(:disabled) {
-  background: var(--klchat-primary-hover);
+.aichat-send:hover:not(:disabled) {
+  background: var(--aichat-primary-hover);
   transform: scale(1.05);
 }
 
-.klchat-send:focus-visible {
-  outline: 2px solid var(--klchat-ring);
+.aichat-send:focus-visible {
+  outline: 2px solid var(--aichat-ring);
   outline-offset: 2px;
 }
 
-.klchat-send:disabled {
-  background: var(--klchat-secondary);
+.aichat-send:disabled {
+  background: var(--aichat-secondary);
   cursor: not-allowed;
   transform: none;
 }
 
-.klchat-send svg {
+.aichat-send svg {
   width: 20px;
   height: 20px;
   fill: currentColor;
 }
 
 /* Error State */
-.klchat-error {
-  background: var(--klchat-error);
+.aichat-error {
+  background: var(--aichat-error);
   color: hsl(0, 0%, 98%);
   padding: 12px 16px;
-  border-radius: var(--klchat-radius);
+  border-radius: var(--aichat-radius);
   margin: 16px 20px;
   font-size: 13px;
   display: flex;
@@ -489,7 +489,7 @@
   gap: 8px;
 }
 
-.klchat-error svg {
+.aichat-error svg {
   width: 16px;
   height: 16px;
   fill: currentColor;
@@ -497,76 +497,76 @@
 }
 
 /* Welcome Message */
-.klchat-welcome {
-  background: var(--klchat-surface);
-  border: 1px solid var(--klchat-border);
-  border-radius: var(--klchat-radius);
+.aichat-welcome {
+  background: var(--aichat-surface);
+  border: 1px solid var(--aichat-border);
+  border-radius: var(--aichat-radius);
   padding: 20px;
   margin: 0 0 16px 0;
   text-align: center;
 }
 
-.klchat-welcome h3 {
+.aichat-welcome h3 {
   margin: 0 0 8px 0;
   font-size: 16px;
   font-weight: bold;
-  color: var(--klchat-text);
+  color: var(--aichat-text);
 }
 
-.klchat-welcome p {
+.aichat-welcome p {
   margin: 0;
-  color: var(--klchat-text-muted);
+  color: var(--aichat-text-muted);
   font-size: 13px;
 }
 
 /* Contact Form Styles */
-.klchat-contact-form {
+.aichat-contact-form {
   margin-top: 12px;
   padding: 16px;
-  background: var(--klchat-background);
-  border: 1px solid var(--klchat-border);
-  border-radius: var(--klchat-radius);
+  background: var(--aichat-background);
+  border: 1px solid var(--aichat-border);
+  border-radius: var(--aichat-radius);
   position: relative;
   z-index: 10 !important;
   pointer-events: auto !important;
 }
 
-.klchat-contact-form * {
+.aichat-contact-form * {
   pointer-events: auto !important;
   z-index: 15 !important;
 }
 
-.klchat-form-message {
+.aichat-form-message {
   margin-bottom: 16px;
-  color: var(--klchat-text);
+  color: var(--aichat-text);
   line-height: 1.5;
 }
 
-.klchat-form-field {
+.aichat-form-field {
   margin-bottom: 16px;
   position: relative;
   z-index: 10;
   pointer-events: auto !important;
 }
 
-.klchat-form-field label {
+.aichat-form-field label {
   display: block;
   margin-bottom: 6px;
   font-weight: bold;
-  color: var(--klchat-text);
+  color: var(--aichat-text);
   font-size: 13px;
   pointer-events: auto !important;
 }
 
-.klchat-form-input {
+.aichat-form-input {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid var(--klchat-input-border);
-  border-radius: var(--klchat-radius);
+  border: 1px solid var(--aichat-input-border);
+  border-radius: var(--aichat-radius);
   font-size: 14px;
   font-family: inherit;
-  color: var(--klchat-text);
-  background: var(--klchat-background);
+  color: var(--aichat-text);
+  background: var(--aichat-background);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   position: relative;
   z-index: 20 !important;
@@ -577,29 +577,29 @@
   user-select: text !important;
 }
 
-.klchat-form-input:focus {
+.aichat-form-input:focus {
   outline: none;
-  border-color: var(--klchat-ring);
+  border-color: var(--aichat-ring);
   box-shadow: 0 0 0 3px hsl(24, 100%, 50%, 0.1);
 }
 
-.klchat-form-input:focus-visible {
-  outline: 2px solid var(--klchat-ring);
+.aichat-form-input:focus-visible {
+  outline: 2px solid var(--aichat-ring);
   outline-offset: 2px;
 }
 
-.klchat-form-input.klchat-form-error {
-  border-color: var(--klchat-error);
+.aichat-form-input.aichat-form-error {
+  border-color: var(--aichat-error);
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
-.klchat-form-submit {
+.aichat-form-submit {
   width: 100%;
   padding: 12px 16px;
-  background: var(--klchat-primary);
-  color: var(--klchat-primary-foreground);
+  background: var(--aichat-primary);
+  color: var(--aichat-primary-foreground);
   border: none;
-  border-radius: var(--klchat-radius);
+  border-radius: var(--aichat-radius);
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
@@ -609,22 +609,22 @@
   pointer-events: auto !important;
 }
 
-.klchat-form-submit:hover:not(:disabled) {
-  background: var(--klchat-primary-hover);
+.aichat-form-submit:hover:not(:disabled) {
+  background: var(--aichat-primary-hover);
 }
 
-.klchat-form-submit:focus-visible {
-  outline: 2px solid var(--klchat-ring);
+.aichat-form-submit:focus-visible {
+  outline: 2px solid var(--aichat-ring);
   outline-offset: 2px;
 }
 
-.klchat-form-submit:disabled {
-  background: var(--klchat-secondary);
+.aichat-form-submit:disabled {
+  background: var(--aichat-secondary);
   cursor: not-allowed;
 }
 
 /* Animations */
-@keyframes klchat-message-in {
+@keyframes aichat-message-in {
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -635,7 +635,7 @@
   }
 }
 
-@keyframes klchat-typing-bounce {
+@keyframes aichat-typing-bounce {
   0%, 60%, 100% {
     transform: translateY(0);
   }
@@ -646,49 +646,49 @@
 
 /* Mobile Responsive */
 @media (max-width: 480px) {
-  .klchat-container {
+  .aichat-container {
     bottom: 90px;
     right: 12px;
     left: 12px;
     width: auto;
     height: calc(100vh - 120px);
     max-width: none;
-    border-radius: var(--klchat-radius) var(--klchat-radius) 0 0;
+    border-radius: var(--aichat-radius) var(--aichat-radius) 0 0;
   }
   
-  .klchat-button {
+  .aichat-button {
     bottom: 16px;
     right: 16px;
   }
   
-  .klchat-message-content {
+  .aichat-message-content {
     max-width: 85%;
   }
   
-  .klchat-header {
+  .aichat-header {
     padding: 16px 20px;
   }
   
-  .klchat-messages {
+  .aichat-messages {
     padding: 16px;
   }
   
-  .klchat-input-area {
+  .aichat-input-area {
     padding: 16px;
   }
 }
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .klchat-widget {
-    --klchat-border: #000000;
-    --klchat-text-muted: #333333;
+  .aichat-widget {
+    --aichat-border: #000000;
+    --aichat-text-muted: #333333;
   }
 }
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .klchat-widget * {
+  .aichat-widget * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

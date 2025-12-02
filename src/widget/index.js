@@ -6,7 +6,7 @@
   function detectApiBaseUrl() {
     try {
       // 1) Explicit override from host page
-      if (window.KLCHAT_API_URL) return window.KLCHAT_API_URL;
+      if (window.AICHAT_API_URL) return window.AICHAT_API_URL;
 
       // 2) Use the origin that served this widget script (works when embedded from chat domain)
       const scripts = document.getElementsByTagName('script');
@@ -18,11 +18,19 @@
         }
       }
 
-      // 3) Fallback: current page origin (works for local testing with served widget)
-      return window.location.origin;
+      // 3) Default production API URL
+      const defaultApiUrl = 'https://chat_ailabben.ailabben.no';
+      
+      // 4) Fallback: current page origin (only for localhost development)
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return window.location.origin;
+      }
+
+      // 5) Production fallback: use default API URL
+      return defaultApiUrl;
     } catch (e) {
-      // Final fallback - keep previous default in case of any error
-      return window.location.origin;
+      // Final fallback - use production API URL
+      return 'https://chat_ailabben.ailabben.no';
     }
   }
 
@@ -37,9 +45,9 @@
 
   // Debug which API base is used
   try {
-    console.log('KLChatbot API base:', CONFIG.API_BASE_URL);
-    if (window.KLCHAT_WIDGET_VERSION) {
-      console.log('KLChatbot widget version:', window.KLCHAT_WIDGET_VERSION);
+    console.log('AIChatbot API base:', CONFIG.API_BASE_URL);
+    if (window.AICHAT_WIDGET_VERSION) {
+      console.log('AIChatbot widget version:', window.AICHAT_WIDGET_VERSION);
     }
   } catch {}
 
@@ -72,7 +80,7 @@
   function getAvatarIcon() {
     // Try to load from API base URL first, then fallback to relative path
     const iconPath = `${CONFIG.API_BASE_URL}/images/AI Labben ikon 64x64.svg`;
-    return `<img src="${iconPath}" alt="AI Labben" class="klchat-avatar-icon" />`;
+    return `<img src="${iconPath}" alt="AI Labben" class="aichat-avatar-icon" />`;
   }
 
   function debounce(func, wait) {
@@ -168,11 +176,11 @@
   function createWidget() {
     // Create widget container
     const widget = document.createElement('div');
-    widget.className = 'klchat-widget';
+    widget.className = 'aichat-widget';
     
     // Create chat button OUTSIDE the main widget container
     const chatButton = document.createElement('button');
-    chatButton.className = 'klchat-button';
+    chatButton.className = 'aichat-button';
     chatButton.setAttribute('aria-label', 'Open chat');
     chatButton.innerHTML = `
       <svg viewBox="0 0 24 24">
@@ -182,47 +190,47 @@
     
     // Create chat container
     const chatContainer = document.createElement('div');
-    chatContainer.className = 'klchat-container';
+    chatContainer.className = 'aichat-container';
     chatContainer.innerHTML = `
-      <div class="klchat-header">
-          <div class="klchat-header-info">
-          <div class="klchat-avatar">${getAvatarIcon()}</div>
+      <div class="aichat-header">
+          <div class="aichat-header-info">
+          <div class="aichat-avatar">${getAvatarIcon()}</div>
           <div>
-            <h3 class="klchat-title">AI Labben</h3>
-            <p class="klchat-subtitle">Vi hjelper deg gjerne!</p>
+            <h3 class="aichat-title">AI Labben</h3>
+            <p class="aichat-subtitle">Vi hjelper deg gjerne!</p>
           </div>
         </div>
-        <button class="klchat-close" aria-label="Close chat">
+        <button class="aichat-close" aria-label="Close chat">
           <svg viewBox="0 0 24 24">
             <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
           </svg>
         </button>
       </div>
       
-      <div class="klchat-messages" id="klchat-messages">
+      <div class="aichat-messages" id="aichat-messages">
       </div>
       
-      <div class="klchat-typing" id="klchat-typing">
-        <div class="klchat-message-avatar">
+      <div class="aichat-typing" id="aichat-typing">
+        <div class="aichat-message-avatar">
           ${getAvatarIcon()}
         </div>
-        <div class="klchat-typing-content">
-          <div class="klchat-typing-dot"></div>
-          <div class="klchat-typing-dot"></div>
-          <div class="klchat-typing-dot"></div>
+        <div class="aichat-typing-content">
+          <div class="aichat-typing-dot"></div>
+          <div class="aichat-typing-dot"></div>
+          <div class="aichat-typing-dot"></div>
         </div>
       </div>
       
-      <div class="klchat-input-area">
-        <div class="klchat-input-container">
+      <div class="aichat-input-area">
+        <div class="aichat-input-container">
           <textarea 
-            class="klchat-input" 
-            id="klchat-input"
+            class="aichat-input" 
+            id="aichat-input"
             placeholder="Skriv din melding..."
             rows="1"
             maxlength="${CONFIG.MAX_MESSAGE_LENGTH}"
           ></textarea>
-          <button class="klchat-send" id="klchat-send" aria-label="Send message">
+          <button class="aichat-send" id="aichat-send" aria-label="Send message">
             <svg viewBox="0 0 24 24">
               <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
             </svg>
@@ -240,7 +248,7 @@
 
   function createMessage(content, isUser = false, timestamp = new Date()) {
     const messageDiv = document.createElement('div');
-    messageDiv.className = `klchat-message ${isUser ? 'klchat-user' : 'klchat-bot'}`;
+    messageDiv.className = `aichat-message ${isUser ? 'aichat-user' : 'aichat-bot'}`;
     
     // Use SVG icon for bot messages, 'U' for user messages
     const avatar = isUser ? 'U' : getAvatarIcon();
@@ -258,10 +266,10 @@
     }
     
     messageDiv.innerHTML = `
-      <div class="klchat-message-avatar">${avatar}</div>
-      <div class="klchat-message-content">
+      <div class="aichat-message-avatar">${avatar}</div>
+      <div class="aichat-message-content">
         ${messageContent}
-        <div class="klchat-message-time">${timeStr}</div>
+        <div class="aichat-message-time">${timeStr}</div>
       </div>
     `;
 
@@ -269,12 +277,12 @@
   }
 
   function createContactForm(formData) {
-    const formId = 'klchat-contact-form-' + Date.now();
+    const formId = 'aichat-contact-form-' + Date.now();
     
     let fieldsHtml = '';
     formData.form.fields.forEach(field => {
       fieldsHtml += `
-        <div class="klchat-form-field">
+        <div class="aichat-form-field">
           <label for="${formId}-${field.name}">${field.label}${field.required ? ' *' : ''}</label>
           <input 
             type="${field.type}" 
@@ -282,23 +290,23 @@
             name="${field.name}"
             placeholder="${field.placeholder || ''}"
             ${field.required ? 'required' : ''}
-            class="klchat-form-input"
+            class="aichat-form-input"
           />
         </div>
       `;
     });
     
     return `
-      <div class="klchat-form-message">${formData.message}</div>
-      <form class="klchat-contact-form" data-form-id="${formId}">
+      <div class="aichat-form-message">${formData.message}</div>
+      <form class="aichat-contact-form" data-form-id="${formId}">
         ${fieldsHtml}
-        <button type="submit" class="klchat-form-submit">${formData.form.submitText}</button>
+        <button type="submit" class="aichat-form-submit">${formData.form.submitText}</button>
       </form>
     `;
   }
 
   function attachFormEventListeners(messageElement) {
-    const form = messageElement.querySelector('.klchat-contact-form');
+    const form = messageElement.querySelector('.aichat-contact-form');
     if (!form) return;
 
     form.addEventListener('submit', async (e) => {
@@ -318,10 +326,10 @@
       
       requiredInputs.forEach(input => {
         if (!input.value.trim()) {
-          input.classList.add('klchat-form-error');
+          input.classList.add('aichat-form-error');
           isValid = false;
         } else {
-          input.classList.remove('klchat-form-error');
+          input.classList.remove('aichat-form-error');
         }
       });
       
@@ -330,13 +338,13 @@
       }
       
       // Disable form
-      const submitButton = form.querySelector('.klchat-form-submit');
+      const submitButton = form.querySelector('.aichat-form-submit');
       submitButton.disabled = true;
       submitButton.textContent = 'Sender...';
       
       try {
         // Send form data as JSON message
-        const messagesContainer = document.getElementById('klchat-messages');
+        const messagesContainer = document.getElementById('aichat-messages');
         const userMessage = createMessage(`Navn: ${data.user_name}, E-post: ${data.user_email}`, true);
         messagesContainer.appendChild(userMessage);
         
@@ -379,9 +387,9 @@
   }
 
   function showError(message) {
-    const messagesContainer = document.getElementById('klchat-messages');
+    const messagesContainer = document.getElementById('aichat-messages');
     const errorDiv = document.createElement('div');
-    errorDiv.className = 'klchat-error';
+    errorDiv.className = 'aichat-error';
     errorDiv.innerHTML = `
       <svg viewBox="0 0 24 24">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
@@ -401,14 +409,14 @@
   }
 
   function showTyping(show = true) {
-    const typingIndicator = document.getElementById('klchat-typing');
-    const messagesContainer = document.getElementById('klchat-messages');
+    const typingIndicator = document.getElementById('aichat-typing');
+    const messagesContainer = document.getElementById('aichat-messages');
     
     if (show) {
-      typingIndicator.classList.add('klchat-show');
+      typingIndicator.classList.add('aichat-show');
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     } else {
-      typingIndicator.classList.remove('klchat-show');
+      typingIndicator.classList.remove('aichat-show');
     }
   }
 
@@ -422,8 +430,8 @@
   function toggleWidget() {
     console.log('toggleWidget called, current state:', state.isOpen);
     
-    const container = document.querySelector('.klchat-container');
-    const button = document.querySelector('.klchat-button');
+    const container = document.querySelector('.aichat-container');
+    const button = document.querySelector('.aichat-button');
     
     if (!container) {
       console.error('Chat container not found!');
@@ -434,22 +442,22 @@
     state.isOpen = !state.isOpen;
     
     if (state.isOpen) {
-      container.classList.add('klchat-open');
-      button?.classList.add('klchat-open');
+      container.classList.add('aichat-open');
+      button?.classList.add('aichat-open');
       console.log('Opening chat...');
       
       // Sørg for at proaktiv melding vises hver gang chatten åpnes
       ensureProactiveMessage();
       
       setTimeout(() => {
-        const input = document.getElementById('klchat-input');
+        const input = document.getElementById('aichat-input');
         if (input) {
           input.focus();
         }
       }, 500);
     } else {
-      container.classList.remove('klchat-open');
-      button?.classList.remove('klchat-open');
+      container.classList.remove('aichat-open');
+      button?.classList.remove('aichat-open');
       console.log('Closing chat...');
       
       // Hvis chatten ble lukket (fra åpen til lukket), marker som manuelt lukket
@@ -462,8 +470,8 @@
   }
 
   async function handleSendMessage() {
-    const input = document.getElementById('klchat-input');
-    const sendButton = document.getElementById('klchat-send');
+    const input = document.getElementById('aichat-input');
+    const sendButton = document.getElementById('aichat-send');
     const message = input.value.trim();
     
     if (!message || state.isLoading) return;
@@ -474,7 +482,7 @@
     sendButton.disabled = true;
     
     // Add user message to UI
-    const messagesContainer = document.getElementById('klchat-messages');
+    const messagesContainer = document.getElementById('aichat-messages');
     const userMessage = createMessage(message, true);
     messagesContainer.appendChild(userMessage);
     
@@ -534,11 +542,11 @@
   // Initialize widget
   async function initWidget(config = {}) {
     // Prevent double initialization - more robust check
-    if (window.KLCHAT_INITIALIZED) {
-      console.log('KLChatbot: Already initialized, skipping...');
+    if (window.AICHAT_INITIALIZED) {
+      console.log('AIChatbot: Already initialized, skipping...');
       return;
     }
-    window.KLCHAT_INITIALIZED = true;
+    window.AICHAT_INITIALIZED = true;
     
     // Customer ID hentes fra API (hardkodet i backend)
     state.sessionId = generateSessionId();
@@ -547,7 +555,7 @@
     state.customerConfig = await loadCustomerConfig();
     
     if (!state.customerConfig) {
-      console.error('KLChatbot: Failed to load customer configuration');
+      console.error('AIChatbot: Failed to load customer configuration');
       return;
     }
     
@@ -568,8 +576,8 @@
       const widget = state.customerConfig.widget;
       
       // Update title and subtitle
-      const title = document.querySelector('.klchat-title');
-      const subtitle = document.querySelector('.klchat-subtitle');
+      const title = document.querySelector('.aichat-title');
+      const subtitle = document.querySelector('.aichat-subtitle');
       
       if (widget.name) title.textContent = widget.name;
       if (widget.subtitle) subtitle.textContent = widget.subtitle;
@@ -582,15 +590,15 @@
       
       // Apply custom primary color if set
       if (widget.primaryColor) {
-        document.documentElement.style.setProperty('--klchat-primary', widget.primaryColor);
+        document.documentElement.style.setProperty('--aichat-primary', widget.primaryColor);
       }
     }
 
     // Event listeners
-    const button = document.querySelector('.klchat-button');
-    const closeButton = document.querySelector('.klchat-close');
-    const input = document.getElementById('klchat-input');
-    const sendButton = document.getElementById('klchat-send');
+    const button = document.querySelector('.aichat-button');
+    const closeButton = document.querySelector('.aichat-close');
+    const input = document.getElementById('aichat-input');
+    const sendButton = document.getElementById('aichat-send');
 
     // Debug logging
     console.log('Button found:', button);
@@ -645,7 +653,7 @@
     }
 
     // Enable natural scrolling in messages area (remove custom wheel handling)
-    const messagesContainer = document.getElementById('klchat-messages');
+    const messagesContainer = document.getElementById('aichat-messages');
     if (messagesContainer) {
       console.log('Enabling natural scrolling...');
       
@@ -672,10 +680,10 @@
     setTimeout(() => {
       console.log('=== DEBUGGING WIDGET LAYERS ===');
       
-      const widget = document.querySelector('.klchat-widget');
-      const container = document.querySelector('.klchat-container');
-      const messages = document.querySelector('.klchat-messages');
-      const closeBtn = document.querySelector('.klchat-close');
+      const widget = document.querySelector('.aichat-widget');
+      const container = document.querySelector('.aichat-container');
+      const messages = document.querySelector('.aichat-messages');
+      const closeBtn = document.querySelector('.aichat-close');
       
       console.log('Widget z-index:', window.getComputedStyle(widget).zIndex);
       console.log('Container z-index:', window.getComputedStyle(container).zIndex);
@@ -693,7 +701,7 @@
       console.log('Element at messages position:', topElementMessages);
       
       // Add temporary visual debugging
-      if (window.KLCHAT_DEBUG) {
+      if (window.AICHAT_DEBUG) {
         widget.style.border = '3px solid red';
         container.style.border = '2px solid blue';
         messages.style.border = '2px solid green';
@@ -703,7 +711,7 @@
       console.log('=== END DEBUG ===');
     }, 1000);
 
-    console.log('KLChatbot initialized successfully for customer:', state.customerId);
+    console.log('AIChatbot initialized successfully for customer:', state.customerId);
     
     // 🚀 Proaktiv chat - åpne automatisk med introduksjonsmelding
     initProactiveChat();
@@ -717,17 +725,17 @@
       return;
     }
     
-    const messagesContainer = document.getElementById('klchat-messages');
+    const messagesContainer = document.getElementById('aichat-messages');
     if (!messagesContainer) {
       return;
     }
     
     // Sjekk om meldingen allerede finnes i DOM (sjekk alle meldinger)
-    const existingMessages = messagesContainer.querySelectorAll('.klchat-message.klchat-bot');
+    const existingMessages = messagesContainer.querySelectorAll('.aichat-message.aichat-bot');
     let messageExistsInDOM = false;
     
     existingMessages.forEach(msg => {
-      const content = msg.querySelector('.klchat-message-content');
+      const content = msg.querySelector('.aichat-message-content');
       if (content) {
         // Fjern HTML tags og sammenlign tekst
         const textContent = content.textContent.trim();
@@ -757,11 +765,11 @@
     // Vent litt slik at animasjonen blir ferdig
     setTimeout(() => {
       // Dobbeltsjekk igjen etter timeout (i tilfelle flere kall)
-      const existingMessagesAfterWait = messagesContainer.querySelectorAll('.klchat-message.klchat-bot');
+      const existingMessagesAfterWait = messagesContainer.querySelectorAll('.aichat-message.aichat-bot');
       let stillExists = false;
       
       existingMessagesAfterWait.forEach(msg => {
-        const content = msg.querySelector('.klchat-message-content');
+        const content = msg.querySelector('.aichat-message-content');
         if (content) {
           const textContent = content.textContent.trim();
           const proactiveText = proactiveConfig.message.trim();
@@ -777,7 +785,7 @@
       }
       
       // Fjern welcome-meldingen hvis den finnes
-      const welcomeMsg = messagesContainer.querySelector('.klchat-welcome');
+      const welcomeMsg = messagesContainer.querySelector('.aichat-welcome');
       if (welcomeMsg) {
         welcomeMsg.remove();
       }
@@ -895,7 +903,7 @@
   }
 
   // Public API
-  window.KLChatbot = {
+  window.AIChatbot = {
     init: initWidget,
     open: () => {
       if (!state.isOpen) toggleWidget();
@@ -910,7 +918,7 @@
     // Debug function to force button click
     forceClick: () => {
       console.log('Force clicking button...');
-      const btn = document.querySelector('.klchat-button');
+      const btn = document.querySelector('.aichat-button');
       if (btn) {
         console.log('Button found, triggering toggle');
         toggleWidget();
@@ -921,8 +929,8 @@
   };
 
   // Auto-initialize (no config needed since customer_id is hardcoded in backend)
-  if (window.KLCHAT_AUTO_INIT !== false) {
-    window.KLChatbot.init();
+  if (window.AICHAT_AUTO_INIT !== false) {
+    window.AIChatbot.init();
   }
 
 })();

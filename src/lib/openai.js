@@ -1,8 +1,19 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy initialization - only create client when needed
+let openaiClient = null;
+
+function getOpenAIClient() {
+  if (!openaiClient) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OpenAI API key not configured');
+    }
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openaiClient;
+}
 
 export class OpenAIService {
   
@@ -19,6 +30,7 @@ export class OpenAIService {
         throw new Error('OpenAI API key not configured');
       }
 
+      const openai = getOpenAIClient();
       const completion = await openai.chat.completions.create({
         model,
         messages,
@@ -70,6 +82,7 @@ export class OpenAIService {
         throw new Error('OpenAI API key not configured');
       }
 
+      const openai = getOpenAIClient();
       const response = await openai.embeddings.create({
         model,
         input: text,
@@ -100,6 +113,11 @@ export class OpenAIService {
         temperature = 0.7
       } = config;
 
+      if (!process.env.OPENAI_API_KEY) {
+        throw new Error('OpenAI API key not configured');
+      }
+
+      const openai = getOpenAIClient();
       const stream = await openai.chat.completions.create({
         model,
         messages,

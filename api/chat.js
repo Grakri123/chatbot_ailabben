@@ -91,9 +91,83 @@ export default async function handler(req, res) {
     const hasContact = sessionManager.hasContactInfo(sessionIdToUse);
     const userMessageCount = session.chatHistory.filter(msg => msg.role === 'user').length;
     
-    // Vis kontaktskjema på 1. brukermelding
-    if (userMessageCount === 1 && !hasContact) {
-      // Første brukermelding - vis kontaktskjema direkte
+    // Sjekk om kontakt allerede er samlet i meldinger (inkludert nåværende)
+    let contactAlreadyInMessages = false;
+    if (!hasContact) {
+      // Sjekk nåværende melding først
+      if (looksLikeContactInfo(sanitizedMessage)) {
+        const parsedContact = parseContactInfo(sanitizedMessage);
+        if (parsedContact.hasContact && parsedContact.name && parsedContact.email) {
+          // Kontaktinfo funnet i nåværende melding - lagre det
+          sessionManager.setContactCollected(sessionIdToUse, {
+            userName: parsedContact.name,
+            userEmail: parsedContact.email
+          });
+          contactAlreadyInMessages = true;
+        }
+      }
+      
+      // Hvis ikke funnet i nåværende, sjekk alle tidligere brukermeldinger
+      if (!contactAlreadyInMessages) {
+        for (const msg of session.chatHistory) {
+          if (msg.role === 'user' && looksLikeContactInfo(msg.content)) {
+            const parsedContact = parseContactInfo(msg.content);
+            if (parsedContact.hasContact && parsedContact.name && parsedContact.email) {
+              // Kontaktinfo funnet i tidligere melding - lagre det
+              sessionManager.setContactCollected(sessionIdToUse, {
+                userName: parsedContact.name,
+                userEmail: parsedContact.email
+              });
+              contactAlreadyInMessages = true;
+              break;
+            }
+          }
+        }
+      }
+      
+      // Hvis kontakt ble funnet, lagre samtale umiddelbart
+      if (contactAlreadyInMessages) {
+        try {
+          const savedContact = sessionManager.getContactInfo(sessionIdToUse);
+          let triggerMessage = 'Ukjent';
+          // Finn første brukermelding som ikke er kontaktinfo
+          for (let i = 0; i < session.chatHistory.length; i++) {
+            const histMsg = session.chatHistory[i];
+            if (histMsg.role === 'user' && 
+                !histMsg.content.includes('user_name') && 
+                !histMsg.content.includes('user_email') &&
+                !looksLikeContactInfo(histMsg.content)) {
+              triggerMessage = histMsg.content;
+              break;
+            }
+          }
+          
+          await ContactLogger.logContact({
+            sessionId: sessionIdToUse,
+            customerName: savedContact.userName,
+            customerEmail: savedContact.userEmail,
+            conversationHistory: session.chatHistory,
+            triggerMessage: triggerMessage,
+            currentUrl: sanitizedUrl,
+            userIp: clientIP,
+            userAgent: req.headers['user-agent'],
+            sessionDuration: Date.now() - session.startTime,
+            endReason: 'contact_collected'
+          });
+          
+          console.log(`✅ Kontakt funnet i melding og lagret umiddelbart for ${savedContact.userName}`);
+        } catch (logError) {
+          console.error('❌ Feil ved umiddelbar lagring av kontakt fra melding:', logError);
+        }
+      }
+    }
+    
+    // Oppdater hasContact etter sjekk av meldinger
+    const contactCollected = hasContact || contactAlreadyInMessages;
+    
+    // Vis kontaktskjema på 2. brukermelding (hvis kontakt ikke allerede er samlet)
+    if (userMessageCount === 2 && !contactCollected) {
+      // Andre brukermelding - vis kontaktskjema
       botResponse = {
         type: 'contact_form',
         message: 'Jeg gleder meg til å fortsette denne samtalen, men først trenger jeg at du fyller ut infoen under 😊',
@@ -117,18 +191,18 @@ export default async function handler(req, res) {
           submitText: 'Send inn'
         }
       };
-    } else if (userMessageCount === 2 && !hasContact && looksLikeContactInfo(sanitizedMessage)) {
-      // Andre brukermelding - håndter innsending av skjema
+    } else if (userMessageCount === 3 && !contactCollected) {
+      // Tredje brukermelding - håndter innsending av skjema (hvis skjema ble vist på 2. melding)
       // Contact form submission handling
       
       let formData;
       try {
-        // Try to parse as JSON form data first
+        // Try to parse as JSON form data first (widget sender som JSON)
         formData = JSON.parse(sanitizedMessage);
       } catch {
         // Fallback to text parsing if not JSON
         const parsedContact = parseContactInfo(sanitizedMessage);
-        if (parsedContact.hasContact) {
+        if (parsedContact.hasContact && parsedContact.name && parsedContact.email) {
           formData = {
             user_name: parsedContact.name,
             user_email: parsedContact.email
@@ -148,33 +222,81 @@ export default async function handler(req, res) {
         });
         
         // Find the user's question that triggered the contact form
-        let lastUserMessage = sanitizedMessage;
+        // Trigger-meldingen er den siste brukermeldingen før kontaktskjemaet (2. melding)
+        let triggerMessage = 'Ukjent';
         
-        // Look through session history for the trigger message
-        for (let i = session.chatHistory.length - 2; i >= 0; i--) {
+        // Look through session history backwards to find the last user message before contact form
+        // (This should be the 2nd user message, which triggered the contact form)
+        for (let i = session.chatHistory.length - 1; i >= 0; i--) {
           const msg = session.chatHistory[i];
           if (msg.role === 'user' && 
               !msg.content.includes('user_name') && 
-              !msg.content.includes('user_email')) {
-            lastUserMessage = msg.content;
+              !msg.content.includes('user_email') &&
+              !looksLikeContactInfo(msg.content)) {
+            triggerMessage = msg.content;
             break;
           }
         }
         
-        // Create AI response with full context
-        const contextInfo = { currentUrl: sanitizedUrl };
-        const contextualPrompt = `${SYSTEM_PROMPT}
-
-Kunden ${formData.user_name} har nettopp gitt deg kontaktinformasjon og spurte tidligere: "${lastUserMessage}"
-
-Svar på dette spørsmålet på en hjelpsom måte, og takk kunden for kontaktinformasjonen.`;
+        // Build full conversation context (excluding contact form messages)
+        const conversationMessages = [];
+        for (const msg of session.chatHistory) {
+          // Skip contact form messages and JSON form submissions
+          let shouldSkip = false;
+          
+          // Skip assistant messages that are contact forms
+          if (msg.role === 'assistant') {
+            try {
+              const parsed = typeof msg.content === 'string' ? JSON.parse(msg.content) : msg.content;
+              if (parsed && parsed.type === 'contact_form') {
+                shouldSkip = true;
+              }
+            } catch {
+              // Not JSON, check if it contains contact form text
+              if (typeof msg.content === 'string' && msg.content.includes('"type":"contact_form"')) {
+                shouldSkip = true;
+              }
+            }
+          }
+          
+          // Skip user messages that are form submissions
+          if (msg.role === 'user' && (msg.content.includes('user_name') || msg.content.includes('user_email'))) {
+            // Check if it's a JSON form submission
+            try {
+              const parsed = JSON.parse(msg.content);
+              if (parsed.user_name || parsed.user_email) {
+                shouldSkip = true;
+              }
+            } catch {
+              // Not JSON, might be text format - check if it looks like contact info submission
+              if (looksLikeContactInfo(msg.content) && msg.content.includes('Navn:') && msg.content.includes('E-post:')) {
+                shouldSkip = true;
+              }
+            }
+          }
+          
+          if (!shouldSkip) {
+            conversationMessages.push({
+              role: msg.role,
+              content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
+            });
+          }
+        }
         
-        const messages = createChatMessages(
-          contextualPrompt,
-          null,
-          lastUserMessage,
-          { currentUrl: sanitizedUrl }
-        );
+        // Create AI response with full conversation context
+        const contextInfo = { currentUrl: sanitizedUrl };
+        let prompt = SYSTEM_PROMPT;
+        
+        // Add customer name to prompt if available
+        prompt = `${SYSTEM_PROMPT}
+
+Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gitt deg kontaktinformasjon. Fortsett samtalen naturlig basert på det de har spurt om tidligere - ikke introduser deg på nytt eller start samtalen på nytt.`;
+        
+        // Build messages array with system prompt and full conversation history
+        const messages = [
+          { role: 'system', content: prompt },
+          ...conversationMessages
+        ];
         
         const aiResult = await OpenAIService.generateResponse(messages, AI_CONFIG);
         
@@ -186,8 +308,7 @@ Svar på dette spørsmålet på en hjelpsom måte, og takk kunden for kontaktinf
 
         // Lagre samtale umiddelbart når kontakt er samlet
         try {
-          // Finn trigger-meldingen (siste brukermelding før kontaktskjema)
-          let triggerMessage = lastUserMessage;
+          // triggerMessage er allerede satt til riktig verdi (siste brukermelding før kontaktskjema)
           
           await ContactLogger.logContact({
             sessionId: sessionIdToUse,
@@ -235,15 +356,15 @@ Svar på dette spørsmålet på en hjelpsom måte, og takk kunden for kontaktinf
         };
       }
     } else {
-      // Normal AI response (1st message or after contact is collected)
+      // Normal AI response (1st message, or 2nd message if contact already collected, or after contact is collected)
       let prompt = SYSTEM_PROMPT;
       
       // If contact is already collected, include customer name in prompt
-      if (hasContact) {
-        const contactInfo = sessionManager.getContactInfo(sessionIdToUse);
+      const finalContactInfo = sessionManager.getContactInfo(sessionIdToUse);
+      if (finalContactInfo) {
         prompt = `${SYSTEM_PROMPT}
 
-Du snakker med ${contactInfo.userName} som allerede har gitt deg kontaktinformasjon. Fortsett samtalen naturlig.`;
+Du snakker med ${finalContactInfo.userName} som allerede har gitt deg kontaktinformasjon. Fortsett samtalen naturlig.`;
       }
       
       const contextInfo = { currentUrl: sanitizedUrl };
