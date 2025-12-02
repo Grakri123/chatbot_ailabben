@@ -79,6 +79,14 @@ export default async function handler(req, res) {
     const sessionBefore = sessionManager.getSession(sessionIdToUse);
     const userMessageCountBefore = sessionManager.getUserMessageCount(sessionIdToUse);
     
+    // Sjekk om nåværende melding er kontaktskjema-innsending (FØR vi legger den til)
+    const isCurrentMessageFormSubmission = sanitizedMessage.includes('user_name') || sanitizedMessage.includes('user_email') ||
+      (sanitizedMessage.includes('Navn:') && sanitizedMessage.includes('E-post:'));
+    
+    // Beregn userMessageCount FØR vi legger til meldingen (for å sjekke om vi skal vise kontaktskjema)
+    // Hvis det ikke er kontaktskjema-innsending, vil denne meldingen bli den neste
+    const userMessageCount = isCurrentMessageFormSubmission ? userMessageCountBefore : userMessageCountBefore + 1;
+    
     // Add user message to session (telleren oppdateres automatisk i addMessage hvis det ikke er kontaktskjema-innsending)
     sessionManager.addMessage(sessionIdToUse, 'user', sanitizedMessage);
 
@@ -93,22 +101,15 @@ export default async function handler(req, res) {
     
     // Contact collection logic - kun én gang per session
     const hasContact = sessionManager.hasContactInfo(sessionIdToUse);
-    // Hent oppdatert teller (addMessage har allerede oppdatert den hvis det ikke er kontaktskjema-innsending)
-    let userMessageCount = sessionManager.getUserMessageCount(sessionIdToUse);
-    
-    // Hvis nåværende melding er kontaktskjema-innsending, tell den ikke med
-    const isCurrentMessageFormSubmission = sanitizedMessage.includes('user_name') || sanitizedMessage.includes('user_email') ||
-      (sanitizedMessage.includes('Navn:') && sanitizedMessage.includes('E-post:'));
-    
-    if (isCurrentMessageFormSubmission) {
-      // Kontaktskjema-innsending telles ikke, så bruk telleren før denne meldingen
-      userMessageCount = userMessageCountBefore;
-    }
     
     // Debug logging
-    console.log(`[DEBUG] userMessageCountBefore: ${userMessageCountBefore}, userMessageCount: ${userMessageCount}, hasContact: ${hasContact}`);
-    console.log(`[DEBUG] Nåværende melding: ${sanitizedMessage.substring(0, 50)}...`);
+    console.log(`[DEBUG] ========================================`);
+    console.log(`[DEBUG] Melding mottatt: "${sanitizedMessage.substring(0, 50)}..."`);
+    console.log(`[DEBUG] userMessageCountBefore: ${userMessageCountBefore}`);
+    console.log(`[DEBUG] userMessageCount (beregnet): ${userMessageCount}`);
     console.log(`[DEBUG] Er kontaktskjema-innsending: ${isCurrentMessageFormSubmission}`);
+    console.log(`[DEBUG] hasContact: ${hasContact}`);
+    console.log(`[DEBUG] ========================================`);
     
     // Sjekk om kontakt allerede er samlet i meldinger (inkludert nåværende)
     let contactAlreadyInMessages = false;
@@ -190,7 +191,7 @@ export default async function handler(req, res) {
     // Vis kontaktskjema på 3. brukermelding (hvis kontakt ikke allerede er samlet)
     console.log(`[DEBUG] Sjekker kontaktskjema: userMessageCount === 3? ${userMessageCount === 3}, contactCollected? ${contactCollected}`);
     if (userMessageCount === 3 && !contactCollected) {
-      console.log(`[DEBUG] ✅ Viser kontaktskjema på 3. melding`);
+      console.log(`[DEBUG] ✅✅✅ VISER KONTAKTSKJEMA PÅ 3. MELDING ✅✅✅`);
       // Tredje brukermelding - vis kontaktskjema
       botResponse = {
         type: 'contact_form',
