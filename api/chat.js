@@ -189,11 +189,11 @@ export default async function handler(req, res) {
     // Debug logging
     console.log(`[DEBUG] contactCollected: ${contactCollected}, userMessageCount: ${userMessageCount}`);
     
-    // Vis kontaktskjema på 3. brukermelding (hvis kontakt ikke allerede er samlet)
-    console.log(`[DEBUG] Sjekker kontaktskjema: userMessageCount === 3? ${userMessageCount === 3}, contactCollected? ${contactCollected}`);
-    if (userMessageCount === 3 && !contactCollected) {
-      console.log(`[DEBUG] ✅✅✅ VISER KONTAKTSKJEMA PÅ 3. MELDING ✅✅✅`);
-      // Tredje brukermelding - vis kontaktskjema
+    // Vis kontaktskjema på 2. brukermelding (hvis kontakt ikke allerede er samlet)
+    console.log(`[DEBUG] Sjekker kontaktskjema: userMessageCount === 2? ${userMessageCount === 2}, contactCollected? ${contactCollected}`);
+    if (userMessageCount === 2 && !contactCollected) {
+      console.log(`[DEBUG] ✅✅✅ VISER KONTAKTSKJEMA PÅ 2. MELDING ✅✅✅`);
+      // Andre brukermelding - vis kontaktskjema
       botResponse = {
         type: 'contact_form',
         message: 'Jeg gleder meg til å fortsette denne samtalen, men først trenger jeg at du fyller ut infoen under 😊',
@@ -217,8 +217,8 @@ export default async function handler(req, res) {
           submitText: 'Send inn'
         }
       };
-    } else if (userMessageCount === 4 && !contactCollected) {
-      // Fjerde brukermelding - håndter innsending av skjema (hvis skjema ble vist på 3. melding)
+    } else if (userMessageCount === 3 && !contactCollected) {
+      // Tredje brukermelding - håndter innsending av skjema (hvis skjema ble vist på 2. melding)
       // Contact form submission handling
       
       let formData;
@@ -248,11 +248,11 @@ export default async function handler(req, res) {
         });
         
         // Find the user's question that triggered the contact form
-        // Trigger-meldingen er den siste brukermeldingen før kontaktskjemaet (3. melding)
+        // Trigger-meldingen er den siste brukermeldingen før kontaktskjemaet (2. melding)
         let triggerMessage = 'Ukjent';
         
         // Look through session history backwards to find the last user message before contact form
-        // (This should be the 3rd user message, which triggered the contact form)
+        // (This should be the 2nd user message, which triggered the contact form)
         for (let i = session.chatHistory.length - 1; i >= 0; i--) {
           const msg = session.chatHistory[i];
           if (msg.role === 'user' && 
