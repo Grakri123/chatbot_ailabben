@@ -186,40 +186,10 @@ export default async function handler(req, res) {
     // Oppdater hasContact etter sjekk av meldinger
     const contactCollected = hasContact || contactAlreadyInMessages;
     
-    // Debug logging
-    console.log(`[DEBUG] contactCollected: ${contactCollected}, userMessageCount: ${userMessageCount}`);
-    
-    // Vis kontaktskjema på 2. brukermelding (hvis kontakt ikke allerede er samlet)
-    console.log(`[DEBUG] Sjekker kontaktskjema: userMessageCount === 2? ${userMessageCount === 2}, contactCollected? ${contactCollected}`);
-    if (userMessageCount === 2 && !contactCollected) {
-      console.log(`[DEBUG] ✅✅✅ VISER KONTAKTSKJEMA PÅ 2. MELDING ✅✅✅`);
-      // Andre brukermelding - vis kontaktskjema
-      botResponse = {
-        type: 'contact_form',
-        message: 'Jeg gleder meg til å fortsette denne samtalen, men først trenger jeg at du fyller ut infoen under 😊',
-        form: {
-          fields: [
-            {
-              name: 'user_name',
-              label: 'Navn',
-              type: 'text',
-              required: true,
-              placeholder: 'Ola Nordmann'
-            },
-            {
-              name: 'user_email',
-              label: 'E-post',
-              type: 'email',
-              required: true,
-              placeholder: 'ola@example.com'
-            }
-          ],
-          submitText: 'Send inn'
-        }
-      };
-    } else if (userMessageCount === 3 && !contactCollected) {
-      // Tredje brukermelding - håndter innsending av skjema (hvis skjema ble vist på 2. melding)
-      // Contact form submission handling
+    // VIKTIG: Sjekk om nåværende melding er kontaktskjema-innsending FØRST
+    // Hvis det er det, håndter den umiddelbart uavhengig av userMessageCount
+    if (isCurrentMessageFormSubmission && !contactCollected) {
+      console.log(`[DEBUG] 🔵 Håndterer kontaktskjema-innsending`);
       
       let formData;
       try {
@@ -237,22 +207,18 @@ export default async function handler(req, res) {
       }
       
       if (formData && formData.user_name && formData.user_email) {
-        contactInfo.userName = formData.user_name;
-        contactInfo.userEmail = formData.user_email;
-        contactInfo.contactCollected = true;
-        
-        // Lagre kontaktinfo i session
+        // Sett kontakt som samlet UMIDDELBART
         sessionManager.setContactCollected(sessionIdToUse, {
           userName: formData.user_name,
           userEmail: formData.user_email
         });
         
-        // Find the user's question that triggered the contact form
-        // Trigger-meldingen er den siste brukermeldingen før kontaktskjemaet (2. melding)
-        let triggerMessage = 'Ukjent';
+        contactInfo.userName = formData.user_name;
+        contactInfo.userEmail = formData.user_email;
+        contactInfo.contactCollected = true;
         
-        // Look through session history backwards to find the last user message before contact form
-        // (This should be the 2nd user message, which triggered the contact form)
+        // Finn trigger-meldingen (siste ekte brukermelding før kontaktskjemaet)
+        let triggerMessage = 'Ukjent';
         for (let i = session.chatHistory.length - 1; i >= 0; i--) {
           const msg = session.chatHistory[i];
           if (msg.role === 'user' && 
@@ -264,13 +230,12 @@ export default async function handler(req, res) {
           }
         }
         
-        // Build full conversation context (excluding contact form messages)
+        // Build conversation context (excluding contact form messages)
         const conversationMessages = [];
         for (const msg of session.chatHistory) {
-          // Skip contact form messages and JSON form submissions
           let shouldSkip = false;
           
-          // Skip assistant messages that are contact forms
+          // Skip assistant contact form messages
           if (msg.role === 'assistant') {
             try {
               const parsed = typeof msg.content === 'string' ? JSON.parse(msg.content) : msg.content;
@@ -278,27 +243,15 @@ export default async function handler(req, res) {
                 shouldSkip = true;
               }
             } catch {
-              // Not JSON, check if it contains contact form text
               if (typeof msg.content === 'string' && msg.content.includes('"type":"contact_form"')) {
                 shouldSkip = true;
               }
             }
           }
           
-          // Skip user messages that are form submissions
+          // Skip user form submissions
           if (msg.role === 'user' && (msg.content.includes('user_name') || msg.content.includes('user_email'))) {
-            // Check if it's a JSON form submission
-            try {
-              const parsed = JSON.parse(msg.content);
-              if (parsed.user_name || parsed.user_email) {
-                shouldSkip = true;
-              }
-            } catch {
-              // Not JSON, might be text format - check if it looks like contact info submission
-              if (looksLikeContactInfo(msg.content) && msg.content.includes('Navn:') && msg.content.includes('E-post:')) {
-                shouldSkip = true;
-              }
-            }
+            shouldSkip = true;
           }
           
           if (!shouldSkip) {
@@ -309,52 +262,48 @@ export default async function handler(req, res) {
           }
         }
         
-        // Create AI response with full conversation context
-        const contextInfo = { currentUrl: sanitizedUrl };
-        let prompt = SYSTEM_PROMPT;
-        
-        // Add customer name to prompt if available
-        prompt = `${SYSTEM_PROMPT}
+        // Create AI response
+        let prompt = `${SYSTEM_PROMPT}
 
 Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gitt deg kontaktinformasjon. Fortsett samtalen naturlig basert på det de har spurt om tidligere - ikke introduser deg på nytt eller start samtalen på nytt.`;
         
-        // Build messages array with system prompt and full conversation history
         const messages = [
           { role: 'system', content: prompt },
           ...conversationMessages
         ];
         
-        const aiResult = await OpenAIService.generateResponse(messages, AI_CONFIG);
-        
-        if (!aiResult.success) {
-          return res.status(500).json(createErrorResponse(aiResult.response, 500));
-        }
-        
-        botResponse = aiResult.response;
-
-        // Lagre samtale umiddelbart når kontakt er samlet
         try {
-          // triggerMessage er allerede satt til riktig verdi (siste brukermelding før kontaktskjema)
+          const aiResult = await OpenAIService.generateResponse(messages, AI_CONFIG);
           
-          await ContactLogger.logContact({
-            sessionId: sessionIdToUse,
-            customerName: formData.user_name,
-            customerEmail: formData.user_email,
-            conversationHistory: session.chatHistory,
-            triggerMessage: triggerMessage,
-            currentUrl: sanitizedUrl,
-            userIp: clientIP,
-            userAgent: req.headers['user-agent'],
-            sessionDuration: Date.now() - session.startTime,
-            endReason: 'contact_collected'
-          });
-
-          console.log(`✅ Samtale lagret umiddelbart for ${formData.user_name}`);
-        } catch (logError) {
-          console.error('❌ Feil ved umiddelbar lagring:', logError);
-          // Continue anyway - don't let logging errors break the chat
+          if (!aiResult.success) {
+            console.error('[ERROR] AI response failed:', aiResult.response);
+            return res.status(500).json(createErrorResponse(aiResult.response || 'AI service error', 500));
+          }
+          
+          botResponse = aiResult.response;
+          
+          // Lagre samtale umiddelbart
+          try {
+            await ContactLogger.logContact({
+              sessionId: sessionIdToUse,
+              customerName: formData.user_name,
+              customerEmail: formData.user_email,
+              conversationHistory: session.chatHistory,
+              triggerMessage: triggerMessage,
+              currentUrl: sanitizedUrl,
+              userIp: clientIP,
+              userAgent: req.headers['user-agent'],
+              sessionDuration: Date.now() - session.startTime,
+              endReason: 'contact_collected'
+            });
+            console.log(`✅ Samtale lagret umiddelbart for ${formData.user_name}`);
+          } catch (logError) {
+            console.error('❌ Feil ved umiddelbar lagring:', logError);
+          }
+        } catch (aiError) {
+          console.error('[ERROR] AI service exception:', aiError);
+          return res.status(500).json(createErrorResponse('AI service error: ' + aiError.message, 500));
         }
-
       } else {
         // Form data not valid, show form again
         botResponse = {
@@ -381,6 +330,32 @@ Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gi
           }
         };
       }
+    } else if (userMessageCount === 2 && !contactCollected) {
+      console.log(`[DEBUG] ✅✅✅ VISER KONTAKTSKJEMA PÅ 2. MELDING ✅✅✅`);
+      // Andre brukermelding - vis kontaktskjema
+      botResponse = {
+        type: 'contact_form',
+        message: 'Jeg gleder meg til å fortsette denne samtalen, men først trenger jeg at du fyller ut infoen under 😊',
+        form: {
+          fields: [
+            {
+              name: 'user_name',
+              label: 'Navn',
+              type: 'text',
+              required: true,
+              placeholder: 'Ola Nordmann'
+            },
+            {
+              name: 'user_email',
+              label: 'E-post',
+              type: 'email',
+              required: true,
+              placeholder: 'ola@example.com'
+            }
+          ],
+          submitText: 'Send inn'
+        }
+      };
     } else {
       // Normal AI response (1st, 2nd, or 3rd message if contact already collected, or after contact is collected)
       console.log(`[DEBUG] Normal AI response for melding ${userMessageCount}`);
