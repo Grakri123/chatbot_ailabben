@@ -5,10 +5,6 @@
     {
       "source": "/widget.js",
       "destination": "/public/widget.js"
-    },
-    {
-      "source": "/widget.min.js", 
-      "destination": "/public/widget.min.js"
     }
   ],
   "headers": [

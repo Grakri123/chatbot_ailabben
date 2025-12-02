@@ -1,11 +1,10 @@
 
 // AI Labben Chatbot Widget v2.0.1
 // Auto-generated file - do not edit directly
-// Generated: 2025-11-12T11:13:45.901Z
-// AI Labben Chatbot Widget
+// Generated: 2025-12-02T08:33:58.723Z
 
 // Expose build version for debugging
-(function(){ try { window.KLCHAT_WIDGET_VERSION = 'v2.0.1-2025-11-12T11:13:45.901Z'; } catch(e){} })();
+(function(){ try { window.KLCHAT_WIDGET_VERSION = 'v2.0.1-2025-12-02T08:33:58.724Z'; } catch(e){} })();
 
 // Inject CSS
 (function() {
@@ -828,7 +827,7 @@
     chatContainer.className = 'klchat-container';
     chatContainer.innerHTML = `
       <div class="klchat-header">
-        <div class="klchat-header-info">
+          <div class="klchat-header-info">
           <div class="klchat-avatar">AI</div>
           <div>
             <h3 class="klchat-title">AI Labben</h3>

@@ -43,13 +43,6 @@ app.get('/widget.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'widget.js'));
 });
 
-app.get('/widget.min.js', (req, res) => {
-  res.setHeader('Content-Type', 'application/javascript');
-  // Disable caching during active development/debugging to ensure latest widget is served
-  res.setHeader('Cache-Control', 'no-store, max-age=0, must-revalidate');
-  res.sendFile(path.join(__dirname, 'public', 'widget.min.js'));
-});
-
 // Default route
 app.get('/', (req, res) => {
   res.json({

@@ -58,19 +58,6 @@ console.log('✅ Widget built successfully!');
 console.log(`📦 Output: ${outputFile}`);
 console.log(`📏 Size: ${(widgetContent.length / 1024).toFixed(2)}KB`);
 
-// Also create a minified version for production (basic minification)
-const minifiedContent = widgetContent
-  .replace(/\/\*[\s\S]*?\*\//g, '') // Remove CSS comments
-  .replace(/\/\/.*$/gm, '') // Remove JS comments
-  .replace(/\s+/g, ' ') // Collapse whitespace
-  .trim();
-
-const minifiedFile = path.join(publicDir, 'widget.min.js');
-fs.writeFileSync(minifiedFile, minifiedContent, 'utf8');
-
-console.log(`📦 Minified: ${minifiedFile}`);
-console.log(`📏 Minified size: ${(minifiedContent.length / 1024).toFixed(2)}KB`);
-
 // Create a simple HTML test file
 const testHtmlContent = `<!DOCTYPE html>
 <html lang="no">
