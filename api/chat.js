@@ -77,7 +77,21 @@ export default async function handler(req, res) {
 
     // Get session BEFORE adding message to check count correctly
     const sessionBefore = sessionManager.getSession(sessionIdToUse);
-    const userMessageCountBefore = sessionBefore.chatHistory.filter(msg => msg.role === 'user').length;
+    // Tell kun brukermeldinger som IKKE er kontaktskjema-innsendinger
+    const userMessageCountBefore = sessionBefore.chatHistory.filter(msg => {
+      if (msg.role !== 'user') return false;
+      // Ekskluder kontaktskjema-innsendinger
+      if (msg.content.includes('user_name') || msg.content.includes('user_email')) {
+        try {
+          const parsed = JSON.parse(msg.content);
+          if (parsed.user_name || parsed.user_email) return false;
+        } catch {
+          // Ikke JSON, sjekk om det ser ut som skjema-innsending
+          if (msg.content.includes('Navn:') && msg.content.includes('E-post:')) return false;
+        }
+      }
+      return true;
+    }).length;
     
     // Add user message to session
     sessionManager.addMessage(sessionIdToUse, 'user', sanitizedMessage);
@@ -96,8 +110,11 @@ export default async function handler(req, res) {
     // This is the current message number (after adding)
     const userMessageCount = userMessageCountBefore + 1;
     
-    // Debug logging
+    // Debug logging - vis alle brukermeldinger for å se hva som telles
+    const allUserMessages = sessionBefore.chatHistory.filter(msg => msg.role === 'user').map((msg, idx) => `${idx + 1}: ${msg.content.substring(0, 50)}...`);
     console.log(`[DEBUG] userMessageCountBefore: ${userMessageCountBefore}, userMessageCount: ${userMessageCount}, hasContact: ${hasContact}`);
+    console.log(`[DEBUG] Alle brukermeldinger i session:`, allUserMessages);
+    console.log(`[DEBUG] Nåværende melding: ${sanitizedMessage.substring(0, 50)}...`);
     
     // Sjekk om kontakt allerede er samlet i meldinger (inkludert nåværende)
     let contactAlreadyInMessages = false;
@@ -177,8 +194,9 @@ export default async function handler(req, res) {
     console.log(`[DEBUG] contactCollected: ${contactCollected}, userMessageCount: ${userMessageCount}`);
     
     // Vis kontaktskjema på 3. brukermelding (hvis kontakt ikke allerede er samlet)
+    console.log(`[DEBUG] Sjekker kontaktskjema: userMessageCount === 3? ${userMessageCount === 3}, contactCollected? ${contactCollected}`);
     if (userMessageCount === 3 && !contactCollected) {
-      console.log(`[DEBUG] Viser kontaktskjema på 3. melding`);
+      console.log(`[DEBUG] ✅ Viser kontaktskjema på 3. melding`);
       // Tredje brukermelding - vis kontaktskjema
       botResponse = {
         type: 'contact_form',
