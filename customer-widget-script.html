@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<!-- 
+  KL VARME Chatbot Widget - Integrasjonsscript for kundens nettside
+  Versjon: 2.0
+  Oppdatert: 2024
+-->
+
+<!-- Legg denne koden inn i <head> eller før </body> på kundens nettside -->
+
+<script>
+// Sikre at vi alltid får nyeste versjon av widget
+(function() {
+  'use strict';
+  
+  // Konfigurasjon
+  const WIDGET_CONFIG = {
+    baseUrl: 'https://klvarmechatbot.ailabben.no', // Produksjons-URL
+    version: Date.now(), // Cache-busting
+    debug: false // Sett til true for debugging
+  };
+  
+  // Forhindre dobbel-loading
+  if (window.KLCHAT_LOADING || window.KLCHAT_INITIALIZED) {
+    console.log('KL VARME Chat: Already loading or initialized');
+    return;
+  }
+  window.KLCHAT_LOADING = true;
+  
+  // Debug logging
+  if (WIDGET_CONFIG.debug) {
+    console.log('KL VARME Chat: Starting to load widget...');
+  }
+  
+  // Last widget-script dynamisk med cache-busting
+  const script = document.createElement('script');
+  script.src = `${WIDGET_CONFIG.baseUrl}/widget.js?v=${WIDGET_CONFIG.version}&bust=${Math.random()}`;
+  script.async = true;
+  script.defer = true;
+  
+  // Håndter loading
+  script.onload = function() {
+    if (WIDGET_CONFIG.debug) {
+      console.log('KL VARME Chat: Widget script loaded successfully');
+    }
+    
+    // Initialiser widget når script er lastet
+    if (window.KLChatbot) {
+      try {
+        window.KLChatbot.init();
+        if (WIDGET_CONFIG.debug) {
+          console.log('KL VARME Chat: Widget initialized successfully');
+        }
+      } catch (error) {
+        console.error('KL VARME Chat: Failed to initialize widget:', error);
+      }
+    } else {
+      console.error('KL VARME Chat: Widget not found after loading script');
+    }
+    
+    window.KLCHAT_LOADING = false;
+  };
+  
+  script.onerror = function() {
+    console.error('KL VARME Chat: Failed to load widget script');
+    window.KLCHAT_LOADING = false;
+  };
+  
+  // Legg til script i DOM
+  document.head.appendChild(script);
+  
+  // Fallback for eldre browsere
+  if (!script.async) {
+    script.async = true;
+  }
+})();
+</script>
+
+<!-- Alternativ enkel versjon (hvis du vil ha mindre kode): -->
+<!--
+<script src="https://klvarmechatbot.ailabben.no/widget.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.KLChatbot) {
+      KLChatbot.init();
+    }
+  });
+</script>
+-->
+
+<!-- 
+INSTRUKSJONER:
+1. Widgeten er nå konfigurert for https://klvarmechatbot.ailabben.no
+2. Legg denne koden inn på alle sider der du vil ha chatbot
+3. For debugging, sett debug: true i WIDGET_CONFIG
+4. Widgeten vil vises som en grønn knapp nederst til høyre
+-->

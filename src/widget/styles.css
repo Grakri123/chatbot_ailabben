@@ -1,0 +1,625 @@
+/* AI Chatbot Widget Styles - SIMPLE APPROACH */
+.klchat-widget {
+  --klchat-primary: #429D0A;
+  --klchat-primary-hover: #357A08;
+  --klchat-secondary: #64748b;
+  --klchat-background: #ffffff;
+  --klchat-surface: #f8fafc;
+  --klchat-border: #e2e8f0;
+  --klchat-text: #1e293b;
+  --klchat-text-muted: #64748b;
+  --klchat-success: #10b981;
+  --klchat-error: #ef4444;
+  --klchat-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --klchat-shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--klchat-text);
+  box-sizing: border-box;
+  
+  /* SIMPLE: No container styling - only children matter */
+  position: static;
+  width: auto;
+  height: auto;
+  z-index: auto;
+  pointer-events: none;
+}
+
+/* ISOLATION: All child elements inherit isolation */
+.klchat-widget *, 
+.klchat-widget *::before, 
+.klchat-widget *::after {
+  box-sizing: border-box;
+  pointer-events: inherit; /* Inherit isolation from parent */
+}
+
+/* Chat Button - SIMPLE AND CLEAN */
+.klchat-button {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  background: var(--klchat-primary);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: var(--klchat-shadow);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  
+  /* SIMPLE: Just enable interactions */
+  pointer-events: auto;
+}
+
+.klchat-button:hover {
+  background: var(--klchat-primary-hover);
+  transform: scale(1.05);
+  box-shadow: var(--klchat-shadow-lg);
+}
+
+.klchat-button svg {
+  width: 24px;
+  height: 24px;
+  fill: white;
+  transition: transform 0.3s ease;
+  pointer-events: none !important; /* SVG should not block clicks */
+}
+
+.klchat-button.klchat-open svg {
+  transform: rotate(45deg);
+}
+
+/* Chat Container - SIMPLE SHOW/HIDE */
+.klchat-container {
+  position: fixed;
+  bottom: 100px;
+  right: 24px;
+  width: 380px;
+  height: 600px;
+  max-width: calc(100vw - 48px);
+  max-height: calc(100vh - 150px);
+  background: var(--klchat-background);
+  border-radius: 16px;
+  box-shadow: var(--klchat-shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  transition: all 0.3s ease;
+  z-index: 1001;
+  
+  /* SIMPLE: No interactions when closed */
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.klchat-container.klchat-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+  visibility: visible;
+}
+
+/* Header */
+.klchat-header {
+  background: var(--klchat-primary);
+  color: white;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 16px 16px 0 0;
+}
+
+.klchat-header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.klchat-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.klchat-title {
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+}
+
+.klchat-subtitle {
+  font-size: 12px;
+  opacity: 0.8;
+  margin: 2px 0 0 0;
+}
+
+.klchat-close {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  pointer-events: auto !important;
+  z-index: 2147483647 !important;
+  position: relative;
+}
+
+.klchat-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.klchat-close svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  pointer-events: none !important; /* SVG should not block clicks */
+}
+
+/* Messages Container */
+.klchat-messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-behavior: smooth;
+  max-height: 400px;
+  min-height: 200px;
+  /* Optimize scrolling performance */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  will-change: scroll-position;
+  /* Ensure proper layering */
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+  user-select: text;
+}
+
+.klchat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.klchat-messages::-webkit-scrollbar-track {
+  background: var(--klchat-surface);
+  border-radius: 3px;
+}
+
+.klchat-messages::-webkit-scrollbar-thumb {
+  background: var(--klchat-border);
+  border-radius: 3px;
+}
+
+.klchat-messages::-webkit-scrollbar-thumb:hover {
+  background: var(--klchat-secondary);
+}
+
+/* Message Bubbles */
+.klchat-message {
+  display: flex;
+  gap: 12px;
+  animation: klchat-message-in 0.3s ease;
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+  user-select: text;
+}
+
+.klchat-message.klchat-user {
+  flex-direction: row-reverse;
+}
+
+.klchat-message-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.klchat-message.klchat-bot .klchat-message-avatar {
+  background: var(--klchat-primary);
+  color: white;
+}
+
+.klchat-message.klchat-user .klchat-message-avatar {
+  background: var(--klchat-secondary);
+  color: white;
+}
+
+.klchat-message-content {
+  max-width: 75%;
+  background: var(--klchat-surface);
+  padding: 12px 16px;
+  border-radius: 16px;
+  position: relative;
+  word-wrap: break-word;
+  pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+.klchat-message.klchat-user .klchat-message-content {
+  background: var(--klchat-primary);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.klchat-message.klchat-bot .klchat-message-content {
+  border-bottom-left-radius: 4px;
+}
+
+.klchat-message-time {
+  font-size: 11px;
+  color: var(--klchat-text-muted);
+  margin-top: 4px;
+  text-align: right;
+}
+
+.klchat-message.klchat-user .klchat-message-time {
+  color: rgba(255, 255, 255, 0.7);
+  text-align: left;
+}
+
+/* Typing Indicator */
+.klchat-typing {
+  display: flex;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+.klchat-typing.klchat-show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.klchat-typing-content {
+  background: var(--klchat-surface);
+  padding: 12px 16px;
+  border-radius: 16px;
+  border-bottom-left-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.klchat-typing-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--klchat-secondary);
+  border-radius: 50%;
+  animation: klchat-typing-bounce 1.4s infinite ease-in-out;
+}
+
+.klchat-typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.klchat-typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Input Area */
+.klchat-input-area {
+  padding: 20px;
+  border-top: 1px solid var(--klchat-border);
+  background: var(--klchat-background);
+  flex-shrink: 0;
+}
+
+.klchat-input-container {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.klchat-input {
+  flex: 1;
+  border: 2px solid var(--klchat-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  transition: all 0.2s ease;
+  max-height: 100px;
+  min-height: 44px;
+  background: var(--klchat-background);
+  color: var(--klchat-text);
+  cursor: text !important;
+  user-select: text !important;
+  pointer-events: auto !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+}
+
+.klchat-input:focus {
+  border-color: var(--klchat-primary) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+}
+
+.klchat-input:hover {
+  border-color: var(--klchat-primary);
+}
+
+.klchat-input::placeholder {
+  color: var(--klchat-text-muted);
+}
+
+.klchat-input-container {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  cursor: text !important;
+  pointer-events: auto !important;
+}
+
+.klchat-send {
+  background: var(--klchat-primary);
+  border: none;
+  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.klchat-send:hover:not(:disabled) {
+  background: var(--klchat-primary-hover);
+  transform: scale(1.05);
+}
+
+.klchat-send:disabled {
+  background: var(--klchat-secondary);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.klchat-send svg {
+  width: 20px;
+  height: 20px;
+  fill: white;
+}
+
+/* Error State */
+.klchat-error {
+  background: var(--klchat-error);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 16px 20px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.klchat-error svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+/* Welcome Message */
+.klchat-welcome {
+  background: var(--klchat-surface);
+  border: 1px solid var(--klchat-border);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
+.klchat-welcome h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--klchat-text);
+}
+
+.klchat-welcome p {
+  margin: 0;
+  color: var(--klchat-text-muted);
+  font-size: 13px;
+}
+
+/* Contact Form Styles */
+.klchat-contact-form {
+  margin-top: 12px;
+  padding: 16px;
+  background: var(--klchat-background);
+  border: 1px solid var(--klchat-border);
+  border-radius: 8px;
+  position: relative;
+  z-index: 10 !important;
+  pointer-events: auto !important;
+}
+
+.klchat-contact-form * {
+  pointer-events: auto !important;
+  z-index: 15 !important;
+}
+
+.klchat-form-message {
+  margin-bottom: 16px;
+  color: var(--klchat-text);
+  line-height: 1.5;
+}
+
+.klchat-form-field {
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 10;
+  pointer-events: auto !important;
+}
+
+.klchat-form-field label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: var(--klchat-text);
+  font-size: 13px;
+  pointer-events: auto !important;
+}
+
+.klchat-form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--klchat-border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--klchat-text);
+  background: var(--klchat-background);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  z-index: 20 !important;
+  pointer-events: auto !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+}
+
+.klchat-form-input:focus {
+  outline: none;
+  border-color: var(--klchat-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.klchat-form-input.klchat-form-error {
+  border-color: var(--klchat-error);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.klchat-form-submit {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--klchat-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  position: relative;
+  z-index: 20 !important;
+  pointer-events: auto !important;
+}
+
+.klchat-form-submit:hover:not(:disabled) {
+  background: var(--klchat-primary-hover);
+}
+
+.klchat-form-submit:disabled {
+  background: var(--klchat-secondary);
+  cursor: not-allowed;
+}
+
+/* Animations */
+@keyframes klchat-message-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes klchat-typing-bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .klchat-container {
+    bottom: 90px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    height: calc(100vh - 120px);
+    max-width: none;
+    border-radius: 16px 16px 0 0;
+  }
+  
+  .klchat-button {
+    bottom: 16px;
+    right: 16px;
+  }
+  
+  .klchat-message-content {
+    max-width: 85%;
+  }
+  
+  .klchat-header {
+    padding: 16px 20px;
+  }
+  
+  .klchat-messages {
+    padding: 16px;
+  }
+  
+  .klchat-input-area {
+    padding: 16px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .klchat-widget {
+    --klchat-border: #000000;
+    --klchat-text-muted: #333333;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .klchat-widget * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
