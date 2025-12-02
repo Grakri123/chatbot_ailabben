@@ -25,10 +25,9 @@ const jsContent = fs.readFileSync(jsPath, 'utf8');
 
 // Create combined widget file
 const widgetContent = `
-// KL VARME Chatbot Widget v2.0.1 - FIXED ASSISTANT BUG
+// AI Labben Chatbot Widget v2.0.1
 // Auto-generated file - do not edit directly
 // Generated: ${new Date().toISOString()}
-// SKAL VISE: "KL VARME" IKKE "KL VARME Assistant"
 
 // Expose build version for debugging
 (function(){ try { window.KLCHAT_WIDGET_VERSION = 'v2.0.1-${new Date().toISOString()}'; } catch(e){} })();
@@ -78,7 +77,7 @@ const testHtmlContent = `<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KL Varme Chatbot Widget Test</title>
+    <title>AI Labben Chatbot Widget Test</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -114,11 +113,11 @@ const testHtmlContent = `<!DOCTYPE html>
 </head>
 <body>
     <div class="container">
-        <h1>🤖 KL Varme Chatbot Widget Test</h1>
+        <h1>🤖 AI Labben Chatbot Widget Test</h1>
         
         <div class="info">
             <h3>Test Instruks</h3>
-            <p>Denne siden tester chatbot-widgeten med <code>klvarme</code> som customer_id.</p>
+            <p>Denne siden tester chatbot-widgeten med <code>ailabben</code> som customer_id.</p>
             <p>Widgeten skal vises som en lilla knapp nederst til høyre på siden.</p>
             <p>Klikk på knappen for å åpne chatten og test funksjonaliteten.</p>
         </div>

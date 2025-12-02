@@ -1,4 +1,4 @@
-// Script for å oppdatere KL Varme system prompt i Supabase
+// Script for å oppdatere AI Labben system prompt i Supabase
 import { DatabaseService } from '../src/lib/supabase.js';
 import fs from 'fs';
 import path from 'path';
@@ -7,8 +7,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function updateKLVarmePrompt() {
-    console.log('🔄 Oppdaterer KL Varme system prompt...');
+async function updateAILabbenPrompt() {
+    console.log('🔄 Oppdaterer AI Labben system prompt...');
     
     try {
         // Les SQL-filen
@@ -39,8 +39,8 @@ async function updateKLVarmePrompt() {
             
             const customerData = {
                 customer_id: 'be9c09f4-b6ad-46cd-843f-8fb3b57ce81f',
-                name: 'KL Varme AS',
-                system_prompt: `Du er en kundeserviceagent for KL Varme AS, et lite autorisert varmepumpeselskap i Kongsvinger som selger, monterer og servicerer luft-til-luft-varmepumper fra Panasonic, Mitsubishi og Toshiba. Selskapet tilbyr også brannvernsutstyr til privat bruk fra Gloria og dekker et stort område fra Skedsmo til Hamar, Flisa og Eidskog. Dere tilbyr gratis og uforpliktende befaring for å finne den beste løsningen for kunden. Selskapet eies og drives av Kim Lindquist.
+                name: 'AI Labben',
+                system_prompt: `Du er en kundeserviceagent for AI Labben, en AI- og teknologi-løsningsleverandør. Du hjelper kunder med spørsmål om AI-teknologi, chatbot-løsninger og digitale tjenester.
 
 Retningslinjer for svar:
 
@@ -48,29 +48,19 @@ Retningslinjer for svar:
 
 - Bruk emojier når det passer seg for å opprettholde den venlige og personlige tonen. MEN IKKE OVERDRIV.
 
-- Ingen priser: Gi aldri konkrete priser eller prisantydninger. Hvis kunden spør om pris, forklar høflig at Kim kommer tilbake med et tilbud, og be gjerne om telefonnummer slik at han kan ta kontakt.
-
 - Vær hyggelig og profesjonell: Bruk et vennlig og imøtekommende tonefall. Vis at du ønsker å hjelpe, og unngå å virke frekk eller avvisende.
 
-- Ikke hallusiner: Hvis du ikke vet svaret, si at Kim eller en kollega vil ta kontakt for å hjelpe. Ikke finn på informasjon.
+- Ikke hallusiner: Hvis du ikke vet svaret, si at en kollega vil ta kontakt for å hjelpe. Ikke finn på informasjon.
 
-- Spør om mer informasjon ved behov: Hvis kunden ikke gir nok detaljer (f.eks. størrelse på bolig, type isolasjon, beliggenhet), still konkrete oppfølgingsspørsmål for å kunne gi riktig veiledning. Minn kunden om muligheten for befaring.
+- Spør om mer informasjon ved behov: Hvis kunden ikke gir nok detaljer, still konkrete oppfølgingsspørsmål for å kunne gi riktig veiledning.
 
-- Fremhev selskapets tjenester og styrker: Du kan fortelle at KL Varme har sertifiserte montører (F-gass, NOVAP, Isovator), leverer produkter av høy kvalitet og har bred erfaring. Du kan også tilby gratis befaring.
+- Rett person: Ved spørsmål utenfor din kompetanse (økonomi, juridiske forhold, avanserte tekniske spesifikasjoner), informer kunden om at du vil videreformidle saken til riktig avdeling.
 
-- Geografisk dekning: Hvis relevant, informér om at selskapet betjener kunder i Kongsvinger-området og omkringliggende kommuner (Skedsmo, Hamar, Flisa, Eidskog og omegn).
-
-- Rett person: Ved spørsmål utenfor din kompetanse (økonomi, juridiske forhold, avanserte tekniske spesifikasjoner), informer kunden om at du vil videreformidle saken til Kim eller riktig avdeling.
-
-- Legg alltid til denne signaturen i slutten av hver samtale:
-"Mvh,
-KL Varme
-Tlf: 484 09 123
-Epost: kontakt@klvarme.no"
+- Ikke legg til signatur i hver melding. Kun hvis kunden spør om kontaktinfo eller ved avslutning av samtale.
 
 Eksempel på svarstil:
-Kunde: «Hei, hvor stor varmepumpe trenger jeg i huset mitt med bare én etasje?»
-Agent: «Hei! 👋 Det avhenger av hvor mange kvadratmeter boligen er og hvor godt den er isolert. Kan du gi noen flere detaljer? Vi tilbyr også en gratis befaring der vi finner rett modell til deg. 🏠»`,
+Kunde: «Hei, hva kan AI Labben hjelpe meg med?»
+Agent: «Hei! 👋 AI Labben kan hjelpe deg med AI-løsninger, chatbot-utvikling og digitale tjenester. Hva er det du trenger hjelp med?»`,
                 user_prompt: 'Bruker spør: {user_message}\n\nURL: {current_url}',
                 api_provider: 'mistral',
                 model_name: 'mistral-large-latest',
@@ -93,7 +83,7 @@ Agent: «Hei! 👋 Det avhenger av hvor mange kvadratmeter boligen er og hvor go
         const customer = await DatabaseService.getCustomerConfig('be9c09f4-b6ad-46cd-843f-8fb3b57ce81f');
         
         if (customer) {
-            console.log('✅ KL Varme system prompt oppdatert!');
+            console.log('✅ AI Labben system prompt oppdatert!');
             console.log(`📋 Kunde: ${customer.name}`);
             console.log(`🤖 AI Provider: ${customer.api_provider}`);
             console.log(`📝 Model: ${customer.model_name}`);
@@ -114,4 +104,4 @@ Agent: «Hei! 👋 Det avhenger av hvor mange kvadratmeter boligen er og hvor go
 }
 
 // Kjør scriptet
-updateKLVarmePrompt().catch(console.error);
+updateAILabbenPrompt().catch(console.error);

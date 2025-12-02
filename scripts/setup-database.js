@@ -71,7 +71,7 @@ async function setupDatabase() {
     console.log('\n🎉 Database setup completed!');
     console.log('\n📋 Next steps:');
     console.log('1. Verify tables were created in your Supabase dashboard');
-    console.log('2. Check that sample data for KL Varme was inserted');
+    console.log('2. Check that sample data for AI Labben was inserted');
     console.log('3. Configure your API keys in the .env file');
     console.log('4. Test the API endpoints');
 
@@ -80,7 +80,7 @@ async function setupDatabase() {
     const { data, error } = await supabase
       .from('customers')
       .select('customer_id, name')
-      .eq('customer_id', 'klvarme')
+      .eq('customer_id', 'ailabben')
       .single();
 
     if (error) {

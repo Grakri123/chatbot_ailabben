@@ -1,4 +1,4 @@
-// Session Manager for KL Varme Chatbot
+// Session Manager for AI Labben Chatbot
 // Håndterer aktive sessions med 2-minutt timeout
 import { ContactLogger } from './contact-logger.js';
 

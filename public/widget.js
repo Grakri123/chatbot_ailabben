@@ -1,8 +1,8 @@
 
-// KL VARME Chatbot Widget v2.0.1 - FIXED ASSISTANT BUG
+// AI Labben Chatbot Widget v2.0.1
 // Auto-generated file - do not edit directly
 // Generated: 2025-11-12T11:13:45.901Z
-// SKAL VISE: "KL VARME" IKKE "KL VARME Assistant"
+// AI Labben Chatbot Widget
 
 // Expose build version for debugging
 (function(){ try { window.KLCHAT_WIDGET_VERSION = 'v2.0.1-2025-11-12T11:13:45.901Z'; } catch(e){} })();
@@ -775,16 +775,16 @@
       console.error('Failed to load customer config:', error);
       // Return default config if API fails
       return {
-        customer_id: 'klvarme',
-        name: 'KL VARME',
+        customer_id: 'ailabben',
+        name: 'AI Labben',
         widget: {
-          name: 'KL VARME',
+          name: 'AI Labben',
           subtitle: 'Vi hjelper deg gjerne!',
-          avatar: 'KL',
+          avatar: 'AI',
           primaryColor: '#429D0A',
           welcomeMessage: {
-            title: 'Velkommen til KL VARME!',
-            text: 'Jeg er her for å hjelpe deg med dine spørsmål om varmepumper og energiløsninger.'
+            title: 'Velkommen til AI Labben!',
+            text: 'Jeg er her for å hjelpe deg med dine spørsmål.'
           }
         }
       };
@@ -829,9 +829,9 @@
     chatContainer.innerHTML = `
       <div class="klchat-header">
         <div class="klchat-header-info">
-          <div class="klchat-avatar">KL</div>
+          <div class="klchat-avatar">AI</div>
           <div>
-            <h3 class="klchat-title">KL VARME</h3>
+            <h3 class="klchat-title">AI Labben</h3>
             <p class="klchat-subtitle">Vi hjelper deg gjerne!</p>
           </div>
         </div>
@@ -844,14 +844,14 @@
       
       <div class="klchat-messages" id="klchat-messages">
         <div class="klchat-welcome">
-          <h3>Velkommen til KL VARME!</h3>
-          <p>Jeg er her for å hjelpe deg med dine spørsmål om varmepumper og energiløsninger.</p>
+          <h3>Velkommen til AI Labben!</h3>
+          <p>Jeg er her for å hjelpe deg med dine spørsmål.</p>
         </div>
       </div>
       
       <div class="klchat-typing" id="klchat-typing">
         <div class="klchat-message-avatar">
-          <div class="klchat-avatar">KL</div>
+          <div class="klchat-avatar">AI</div>
         </div>
         <div class="klchat-typing-content">
           <div class="klchat-typing-dot"></div>

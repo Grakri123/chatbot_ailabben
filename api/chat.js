@@ -59,7 +59,7 @@ export default async function handler(req, res) {
 
     // Rate limiting
     const clientIP = getClientIP(req);
-    const rateLimitKey = `klvarme:${clientIP}`;
+    const rateLimitKey = `ailabben:${clientIP}`;
     
     if (!checkRateLimit(rateLimitKey, 20, 60000)) { // 20 requests per minute
       return res.status(429).json(createErrorResponse('Rate limit exceeded. Please wait before sending another message.', 429));
@@ -272,7 +272,7 @@ Du snakker med ${contactInfo.userName} som allerede har gitt deg kontaktinformas
     const responseTime = measureResponseTime(startTime);
 
     // Simple console logging
-    console.log(`[${new Date().toISOString()}] KL Varme Chat:`, {
+    console.log(`[${new Date().toISOString()}] AI Labben Chat:`, {
       sessionId: sessionIdToUse,
       messageCount,
       userMessage: sanitizedMessage.substring(0, 30) + '...',
@@ -300,10 +300,10 @@ Du snakker med ${contactInfo.userName} som allerede har gitt deg kontaktinformas
     return res.status(200).json(createSuccessResponse(responseData, 'Message processed successfully'));
 
   } catch (error) {
-    logError(error, { customer: 'klvarme', endpoint: '/api/chat' });
+    logError(error, { customer: 'ailabben', endpoint: '/api/chat' });
     
     // Simple error logging
-    console.error(`[${new Date().toISOString()}] KL Varme Chat Error:`, {
+    console.error(`[${new Date().toISOString()}] AI Labben Chat Error:`, {
       error: error.message,
       userMessage: req.body?.message || 'unknown',
       currentUrl: req.body?.current_url,

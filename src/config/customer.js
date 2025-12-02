@@ -4,17 +4,17 @@
 export const CUSTOMER_CONFIG = {
   // HOVEDKONFIGURASJON - Endre kun denne når du kloner repoet
   CUSTOMER_ID: "be9c09f4-b6ad-46cd-843f-8fb3b57ce81f",  // ← LEGG INN CUSTOMER_ID HER (må matche Supabase)
-  CUSTOMER_NAME: "KL VARME",  // ← LEGG INN KUNDENAVN HER
+  CUSTOMER_NAME: "AI Labben",  // ← LEGG INN KUNDENAVN HER
   
   // Widget-konfigurasjon (kan tilpasses per kunde)
   WIDGET: {
-    name: "KL VARME",  // Vil bruke CUSTOMER_NAME hvis satt
+    name: "AI Labben",  // Vil bruke CUSTOMER_NAME hvis satt
     subtitle: "Vi hjelper deg gjerne!",
-    avatar: "KL",
+    avatar: "AI",
     primaryColor: "#429D0A",
     welcomeMessage: {
-      title: "Velkommen til KL VARME!",
-      text: "Jeg er her for å hjelpe deg med dine spørsmål om varmepumper og energiløsninger."
+      title: "Velkommen til AI Labben!",
+      text: "Jeg er her for å hjelpe deg med dine spørsmål."
     }
   },
   
@@ -30,7 +30,7 @@ export const CUSTOMER_CONFIG = {
   PROACTIVE_CHAT: {
     enabled: true,
     delay: 5000, // 5 sekunder
-    message: "Hei jeg er KL VARME sin KI hjelper, og jeg kan svare å hjelpe deg med alle spørsmål du har om varmepumper og installasjon",
+    message: "Hei jeg er AI Labben sin KI hjelper, og jeg kan svare å hjelpe deg med alle spørsmål du har",
     showOnce: true // Kun én gang per browser-session
   }
 };

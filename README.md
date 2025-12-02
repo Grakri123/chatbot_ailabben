@@ -1,12 +1,12 @@
 # 🤖 AI Chatbot Assistant
 
-En komplett, produksjonsklar AI-chatassistent for KL Varme AS som kan embeddes på nettsider. Bygget med Mistral AI (GDPR-vennlig) og deploybar på Vercel eller som standalone Node.js server. Forenklet arkitektur uten database - én instans per kunde.
+En komplett, produksjonsklar AI-chatassistent for AI Labben som kan embeddes på nettsider. Bygget med Mistral AI (GDPR-vennlig) og deploybar på Vercel eller som standalone Node.js server. Forenklet arkitektur uten database - én instans per kunde.
 
 ## ✨ Funksjoner
 
 - **🎯 Embed-vennlig**: Enkel å integrere med bare noen få linjer kode
 - **🧠 AI-drevet**: Bruker Mistral AI (GDPR-kompatibel europeisk AI)
-- **🏢 KL Varme-spesialisert**: Hardkodet med KL Varme kundeservice-prompt
+- **🏢 AI Labben-spesialisert**: Hardkodet med AI Labben kundeservice-prompt
 - **🎨 Responsiv design**: Fungerer perfekt på desktop og mobil
 - **⚡ Enkel deployment**: Ingen database nødvendig - kun Mistral API
 - **🔧 Lett å tilpasse**: Endre prompt og design i dedikerte filer
@@ -127,7 +127,7 @@ Server kjører på port 3000 (eller \`PORT\` miljøvariabel).
 
 \`\`\`html
 <!-- Legg til i <head> eller før </body> -->
-<script src="https://chat.klvarme.no/widget.js"></script>
+<script src="https://chat.ailabben.no/widget.js"></script>
 <script>
   KLChatbot.init(); // Ingen konfigurasjon nødvendig!
 </script>
@@ -136,7 +136,7 @@ Server kjører på port 3000 (eller \`PORT\` miljøvariabel).
 ### Avansert konfigurering
 
 \`\`\`html
-<script src="https://chat.klvarme.no/widget.js"></script>
+<script src="https://chat.ailabben.no/widget.js"></script>
 <script>
   // Vent til siden er lastet
   document.addEventListener('DOMContentLoaded', function() {
@@ -156,7 +156,7 @@ Server kjører på port 3000 (eller \`PORT\` miljøvariabel).
 <script>
   window.KLCHAT_AUTO_INIT = false; // Sett før widget-script
 </script>
-<script src="https://chat.klvarme.no/widget.js"></script>
+<script src="https://chat.ailabben.no/widget.js"></script>
 <script>
   // Initialiser manuelt senere
   KLChatbot.init();
@@ -320,7 +320,7 @@ Alle samtaler logges automatisk med:
 
 Overvåk systemet med:
 \`\`\`bash
-curl https://chat.klvarme.no/api/health
+curl https://chat.ailabben.no/api/health
 \`\`\`
 
 ## 🛠️ Utvikling

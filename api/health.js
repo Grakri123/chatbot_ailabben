@@ -27,7 +27,7 @@ export default async function handler(req, res) {
       model: AI_CONFIG.model,
       gdpr_compliant: true,
       version: '2.0.0-simplified',
-      customer: 'KL Varme AS'
+      customer: 'AI Labben'
     };
 
     // Return 503 if critical services are down

@@ -1,4 +1,4 @@
-// Simple contact logging service for KL Varme
+// Simple contact logging service for AI Labben
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 
@@ -42,7 +42,7 @@ export class ContactLogger {
     try {
       // Check if session already exists
       const { data: existingData, error: checkError } = await supabase
-        .from('klvarme_contacts')
+        .from('ailabben_contacts')
         .select('id')
         .eq('session_id', contactData.sessionId)
         .single();
@@ -53,7 +53,7 @@ export class ContactLogger {
         // Update existing record
         console.log(`🔄 Oppdaterer eksisterende session: ${contactData.sessionId}`);
         const result = await supabase
-          .from('klvarme_contacts')
+          .from('ailabben_contacts')
           .update({
             customer_name: contactData.customerName,
             customer_email: contactData.customerEmail,
@@ -74,7 +74,7 @@ export class ContactLogger {
         // Insert new record
         console.log(`➕ Oppretter ny session: ${contactData.sessionId}`);
         const result = await supabase
-          .from('klvarme_contacts')
+          .from('ailabben_contacts')
           .insert([{
             session_id: contactData.sessionId,
             customer_name: contactData.customerName,
