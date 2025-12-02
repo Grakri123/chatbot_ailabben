@@ -68,6 +68,13 @@
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
+  // Get avatar icon HTML (SVG)
+  function getAvatarIcon() {
+    // Try to load from API base URL first, then fallback to relative path
+    const iconPath = `${CONFIG.API_BASE_URL}/images/AI Labben ikon 64x64.svg`;
+    return `<img src="${iconPath}" alt="AI Labben" class="klchat-avatar-icon" />`;
+  }
+
   function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -179,7 +186,7 @@
     chatContainer.innerHTML = `
       <div class="klchat-header">
           <div class="klchat-header-info">
-          <div class="klchat-avatar">AI</div>
+          <div class="klchat-avatar">${getAvatarIcon()}</div>
           <div>
             <h3 class="klchat-title">AI Labben</h3>
             <p class="klchat-subtitle">Vi hjelper deg gjerne!</p>
@@ -197,7 +204,7 @@
       
       <div class="klchat-typing" id="klchat-typing">
         <div class="klchat-message-avatar">
-          <div class="klchat-avatar">AI</div>
+          ${getAvatarIcon()}
         </div>
         <div class="klchat-typing-content">
           <div class="klchat-typing-dot"></div>
@@ -235,7 +242,8 @@
     const messageDiv = document.createElement('div');
     messageDiv.className = `klchat-message ${isUser ? 'klchat-user' : 'klchat-bot'}`;
     
-    const avatar = isUser ? 'U' : 'KL';
+    // Use SVG icon for bot messages, 'U' for user messages
+    const avatar = isUser ? 'U' : getAvatarIcon();
     const timeStr = formatTime(timestamp);
     
     let messageContent;
@@ -430,6 +438,9 @@
       button?.classList.add('klchat-open');
       console.log('Opening chat...');
       
+      // Sørg for at proaktiv melding vises hver gang chatten åpnes
+      ensureProactiveMessage();
+      
       setTimeout(() => {
         const input = document.getElementById('klchat-input');
         if (input) {
@@ -559,11 +570,10 @@
       // Update title and subtitle
       const title = document.querySelector('.klchat-title');
       const subtitle = document.querySelector('.klchat-subtitle');
-      const avatar = document.querySelector('.klchat-avatar');
       
       if (widget.name) title.textContent = widget.name;
       if (widget.subtitle) subtitle.textContent = widget.subtitle;
-      if (widget.avatar) avatar.textContent = widget.avatar;
+      // Avatar is now SVG icon, don't override it with text
       
       // Debug logging
       console.log('Widget config loaded:', widget);
@@ -699,6 +709,96 @@
     initProactiveChat();
   }
 
+  // Hjelpefunksjon for å sikre at proaktiv melding vises
+  function ensureProactiveMessage() {
+    const proactiveConfig = state.customerConfig?.proactive_chat;
+    
+    if (!proactiveConfig || !proactiveConfig.enabled || !proactiveConfig.message) {
+      return;
+    }
+    
+    const messagesContainer = document.getElementById('klchat-messages');
+    if (!messagesContainer) {
+      return;
+    }
+    
+    // Sjekk om meldingen allerede finnes i DOM (sjekk alle meldinger)
+    const existingMessages = messagesContainer.querySelectorAll('.klchat-message.klchat-bot');
+    let messageExistsInDOM = false;
+    
+    existingMessages.forEach(msg => {
+      const content = msg.querySelector('.klchat-message-content');
+      if (content) {
+        // Fjern HTML tags og sammenlign tekst
+        const textContent = content.textContent.trim();
+        const proactiveText = proactiveConfig.message.trim();
+        if (textContent === proactiveText || textContent.includes(proactiveText)) {
+          messageExistsInDOM = true;
+        }
+      }
+    });
+    
+    // Hvis meldingen allerede finnes i DOM, ikke legg den til igjen
+    if (messageExistsInDOM) {
+      console.log('✅ Proaktiv melding finnes allerede i DOM - hopper over');
+      return;
+    }
+    
+    // Sjekk også i chat-historikk
+    const messageExistsInHistory = state.chatHistory.some(
+      msg => msg.role === 'assistant' && msg.content === proactiveConfig.message
+    );
+    
+    if (messageExistsInHistory) {
+      console.log('✅ Proaktiv melding finnes allerede i historikk - hopper over');
+      return;
+    }
+    
+    // Vent litt slik at animasjonen blir ferdig
+    setTimeout(() => {
+      // Dobbeltsjekk igjen etter timeout (i tilfelle flere kall)
+      const existingMessagesAfterWait = messagesContainer.querySelectorAll('.klchat-message.klchat-bot');
+      let stillExists = false;
+      
+      existingMessagesAfterWait.forEach(msg => {
+        const content = msg.querySelector('.klchat-message-content');
+        if (content) {
+          const textContent = content.textContent.trim();
+          const proactiveText = proactiveConfig.message.trim();
+          if (textContent === proactiveText || textContent.includes(proactiveText)) {
+            stillExists = true;
+          }
+        }
+      });
+      
+      if (stillExists) {
+        console.log('✅ Proaktiv melding finnes allerede i DOM (etter timeout) - hopper over');
+        return;
+      }
+      
+      // Fjern welcome-meldingen hvis den finnes
+      const welcomeMsg = messagesContainer.querySelector('.klchat-welcome');
+      if (welcomeMsg) {
+        welcomeMsg.remove();
+      }
+      
+      // Legg til proaktiv melding
+      const proactiveMessage = createMessage(proactiveConfig.message, false, new Date());
+      messagesContainer.appendChild(proactiveMessage);
+      
+      // Legg til i chat-historikk
+      state.chatHistory.push({ 
+        role: 'assistant', 
+        content: proactiveConfig.message 
+      });
+      
+      // Scroll til bunn
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      
+      console.log('🎉 Proaktiv melding lagt til!');
+    }, 500);
+  }
+
   // Proaktiv chat-funksjonalitet
   function initProactiveChat() {
     console.log('🚀 initProactiveChat() kalles');
@@ -787,33 +887,9 @@
         toggleWidget();
       }
       
-      // Vent litt slik at animasjonen blir ferdig
-      setTimeout(() => {
-        const messagesContainer = document.getElementById('klchat-messages');
-        
-        if (messagesContainer && proactiveConfig.message) {
-          // Fjern welcome-meldingen hvis den finnes
-          const welcomeMsg = messagesContainer.querySelector('.klchat-welcome');
-          if (welcomeMsg) {
-            welcomeMsg.remove();
-          }
-          
-          // Legg til proaktiv melding
-          const proactiveMessage = createMessage(proactiveConfig.message, false, new Date());
-          messagesContainer.appendChild(proactiveMessage);
-          
-          // Legg til i chat-historikk
-          state.chatHistory.push({ 
-            role: 'assistant', 
-            content: proactiveConfig.message 
-          });
-          
-          // Scroll til bunn
-          messagesContainer.scrollTop = messagesContainer.scrollHeight;
-          
-          console.log('🎉 Proaktiv melding vist!');
-        }
-      }, 500);
+      // Bruk ensureProactiveMessage() for å sikre at meldingen vises
+      // Denne funksjonen sjekker om meldingen allerede finnes før den legger den til
+      ensureProactiveMessage();
       
     }, delay);
   }

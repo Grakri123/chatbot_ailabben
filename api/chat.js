@@ -1,5 +1,5 @@
 // Vercel serverless function for chat API
-import { MistralService } from '../src/lib/mistral.js';
+import { OpenAIService } from '../src/lib/openai.js';
 import { CUSTOMER_CONFIG } from '../src/config/customer.js';
 import { SYSTEM_PROMPT, AI_CONFIG } from '../src/config/prompt.js';
 import { ContactLogger } from '../src/lib/contact-logger.js';
@@ -176,7 +176,7 @@ Svar på dette spørsmålet på en hjelpsom måte, og takk kunden for kontaktinf
           { currentUrl: sanitizedUrl }
         );
         
-        const aiResult = await MistralService.generateResponse(messages, AI_CONFIG);
+        const aiResult = await OpenAIService.generateResponse(messages, AI_CONFIG);
         
         if (!aiResult.success) {
           return res.status(500).json(createErrorResponse(aiResult.response, 500));
@@ -254,7 +254,7 @@ Du snakker med ${contactInfo.userName} som allerede har gitt deg kontaktinformas
         contextInfo
       );
       
-      const aiResult = await MistralService.generateResponse(messages, AI_CONFIG);
+      const aiResult = await OpenAIService.generateResponse(messages, AI_CONFIG);
       
       if (!aiResult.success) {
         return res.status(500).json(createErrorResponse(aiResult.response, 500));

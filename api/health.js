@@ -1,5 +1,5 @@
 // Health check endpoint for monitoring
-import { MistralService } from '../src/lib/mistral.js';
+import { OpenAIService } from '../src/lib/openai.js';
 import { AI_CONFIG } from '../src/config/prompt.js';
 import { createSuccessResponse, createErrorResponse } from '../src/lib/utils.js';
 
@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     const startTime = Date.now();
     
     // Check AI services configuration
-    const mistralConfigured = MistralService.isConfigured();
+    const openaiConfigured = OpenAIService.isConfigured();
     
     const responseTime = Date.now() - startTime;
     
@@ -21,17 +21,17 @@ export default async function handler(req, res) {
       timestamp: new Date().toISOString(),
       response_time_ms: responseTime,
       services: {
-        mistral: mistralConfigured ? 'configured' : 'not_configured'
+        openai: openaiConfigured ? 'configured' : 'not_configured'
       },
       ai_provider: AI_CONFIG.provider,
       model: AI_CONFIG.model,
-      gdpr_compliant: true,
+      gdpr_compliant: false,
       version: '2.0.0-simplified',
       customer: 'AI Labben'
     };
 
     // Return 503 if critical services are down
-    if (!mistralConfigured) {
+    if (!openaiConfigured) {
       return res.status(503).json(createErrorResponse('Service unhealthy', 503, healthData));
     }
 

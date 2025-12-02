@@ -1,10 +1,10 @@
 
 // AI Labben Chatbot Widget v2.0.1
 // Auto-generated file - do not edit directly
-// Generated: 2025-12-02T08:44:04.374Z
+// Generated: 2025-12-02T10:32:19.243Z
 
 // Expose build version for debugging
-(function(){ try { window.KLCHAT_WIDGET_VERSION = 'v2.0.1-2025-12-02T08:44:04.375Z'; } catch(e){} })();
+(function(){ try { window.KLCHAT_WIDGET_VERSION = 'v2.0.1-2025-12-02T10:32:19.244Z'; } catch(e){} })();
 
 // Inject CSS
 (function() {
@@ -17,22 +17,44 @@
   
   const style = document.createElement('style');
   style.id = 'klchat-widget-styles';
-  style.textContent = `/* AI Chatbot Widget Styles - SIMPLE APPROACH */
+  style.textContent = `/* AI Chatbot Widget Styles - Matches glocal.css design system */
 .klchat-widget {
-  --klchat-primary: #429D0A;
-  --klchat-primary-hover: #357A08;
-  --klchat-secondary: #64748b;
-  --klchat-background: #ffffff;
-  --klchat-surface: #f8fafc;
-  --klchat-border: #e2e8f0;
-  --klchat-text: #1e293b;
-  --klchat-text-muted: #64748b;
-  --klchat-success: #10b981;
-  --klchat-error: #ef4444;
+  /* Primary colors from glocal.css */
+  --klchat-primary: hsl(24, 100%, 50%); /* #ff6b00 / orange-500 */
+  --klchat-primary-hover: hsl(24, 100%, 45%); /* Darker orange for hover */
+  --klchat-primary-foreground: hsl(0, 0%, 98%); /* Almost white */
+  
+  /* Background and surface colors */
+  --klchat-background: hsl(0, 0%, 100%); /* White */
+  --klchat-surface: hsl(0, 0%, 96.1%); /* Secondary color */
+  
+  /* Text colors */
+  --klchat-text: hsl(0, 0%, 3.9%); /* Foreground - almost black */
+  --klchat-text-muted: hsl(0, 0%, 45.1%); /* Muted foreground */
+  
+  /* Secondary and accent */
+  --klchat-secondary: hsl(0, 0%, 96.1%); /* Secondary color */
+  --klchat-secondary-foreground: hsl(0, 0%, 9%); /* Dark gray */
+  
+  /* Border and input */
+  --klchat-border: hsl(0, 0%, 89.8%); /* Border color */
+  --klchat-input-border: hsl(0, 0%, 89.8%); /* Input border */
+  
+  /* Ring color (focus) */
+  --klchat-ring: hsl(24, 100%, 50%); /* Primary color for focus rings */
+  
+  /* Status colors */
+  --klchat-success: hsl(142, 76%, 36%); /* Green */
+  --klchat-error: hsl(0, 84.2%, 60.2%); /* Destructive color from glocal.css */
+  
+  /* Border radius */
+  --klchat-radius: 0.5rem; /* 8px - matches glocal.css */
+  
+  /* Shadows */
   --klchat-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   --klchat-shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: Arial, sans-serif;
   font-size: 14px;
   line-height: 1.5;
   color: var(--klchat-text);
@@ -62,6 +84,7 @@
   width: 60px;
   height: 60px;
   background: var(--klchat-primary);
+  color: var(--klchat-primary-foreground);
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -82,10 +105,15 @@
   box-shadow: var(--klchat-shadow-lg);
 }
 
+.klchat-button:focus-visible {
+  outline: 2px solid var(--klchat-ring);
+  outline-offset: 4px;
+}
+
 .klchat-button svg {
   width: 24px;
   height: 24px;
-  fill: white;
+  fill: currentColor;
   transition: transform 0.3s ease;
   pointer-events: none !important; /* SVG should not block clicks */
 }
@@ -104,8 +132,9 @@
   max-width: calc(100vw - 48px);
   max-height: calc(100vh - 150px);
   background: var(--klchat-background);
-  border-radius: 16px;
+  border-radius: var(--klchat-radius);
   box-shadow: var(--klchat-shadow-lg);
+  border: 1px solid var(--klchat-border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -129,12 +158,12 @@
 /* Header */
 .klchat-header {
   background: var(--klchat-primary);
-  color: white;
+  color: var(--klchat-primary-foreground);
   padding: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-radius: 16px 16px 0 0;
+  border-radius: var(--klchat-radius) var(--klchat-radius) 0 0;
 }
 
 .klchat-header-info {
@@ -147,18 +176,30 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: hsl(0, 0%, 98%, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
+  font-weight: bold;
   font-size: 16px;
+  color: var(--klchat-primary-foreground);
+  overflow: hidden;
+}
+
+.klchat-avatar-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6px;
+  display: block;
 }
 
 .klchat-title {
-  font-weight: 600;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
   font-size: 16px;
   margin: 0;
+  font-style: normal;
 }
 
 .klchat-subtitle {
@@ -170,18 +211,23 @@
 .klchat-close {
   background: none;
   border: none;
-  color: white;
+  color: var(--klchat-primary-foreground);
   cursor: pointer;
   padding: 8px;
-  border-radius: 8px;
+  border-radius: var(--klchat-radius);
   transition: background-color 0.2s ease;
   pointer-events: auto !important;
-  z-index: 2147483647 !important;
+  z-index: 1002;
   position: relative;
 }
 
 .klchat-close:hover {
   background: rgba(255, 255, 255, 0.1);
+}
+
+.klchat-close:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
 }
 
 .klchat-close svg {
@@ -255,25 +301,34 @@
   align-items: center;
   justify-content: center;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: bold;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.klchat-message-avatar .klchat-avatar-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 4px;
+  display: block;
 }
 
 .klchat-message.klchat-bot .klchat-message-avatar {
   background: var(--klchat-primary);
-  color: white;
+  color: var(--klchat-primary-foreground);
 }
 
 .klchat-message.klchat-user .klchat-message-avatar {
   background: var(--klchat-secondary);
-  color: white;
+  color: var(--klchat-secondary-foreground);
 }
 
 .klchat-message-content {
   max-width: 75%;
   background: var(--klchat-surface);
   padding: 12px 16px;
-  border-radius: 16px;
+  border-radius: var(--klchat-radius);
   position: relative;
   word-wrap: break-word;
   pointer-events: auto;
@@ -285,7 +340,7 @@
 
 .klchat-message.klchat-user .klchat-message-content {
   background: var(--klchat-primary);
-  color: white;
+  color: var(--klchat-primary-foreground);
   border-bottom-right-radius: 4px;
 }
 
@@ -298,10 +353,11 @@
   color: var(--klchat-text-muted);
   margin-top: 4px;
   text-align: right;
+  opacity: 0.8;
 }
 
 .klchat-message.klchat-user .klchat-message-time {
-  color: rgba(255, 255, 255, 0.7);
+  color: hsl(0, 0%, 98%, 0.7);
   text-align: left;
 }
 
@@ -322,7 +378,7 @@
 .klchat-typing-content {
   background: var(--klchat-surface);
   padding: 12px 16px;
-  border-radius: 16px;
+  border-radius: var(--klchat-radius);
   border-bottom-left-radius: 4px;
   display: flex;
   align-items: center;
@@ -357,12 +413,14 @@
   display: flex;
   gap: 12px;
   align-items: flex-end;
+  cursor: text !important;
+  pointer-events: auto !important;
 }
 
 .klchat-input {
   flex: 1;
-  border: 2px solid var(--klchat-border);
-  border-radius: 12px;
+  border: 2px solid var(--klchat-input-border);
+  border-radius: var(--klchat-radius);
   padding: 12px 16px;
   font-family: inherit;
   font-size: 14px;
@@ -383,8 +441,13 @@
 }
 
 .klchat-input:focus {
-  border-color: var(--klchat-primary) !important;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+  border-color: var(--klchat-ring) !important;
+  box-shadow: 0 0 0 3px hsl(24, 100%, 50%, 0.1) !important;
+}
+
+.klchat-input:focus-visible {
+  outline: 2px solid var(--klchat-ring);
+  outline-offset: 2px;
 }
 
 .klchat-input:hover {
@@ -395,18 +458,11 @@
   color: var(--klchat-text-muted);
 }
 
-.klchat-input-container {
-  display: flex;
-  gap: 12px;
-  align-items: flex-end;
-  cursor: text !important;
-  pointer-events: auto !important;
-}
-
 .klchat-send {
   background: var(--klchat-primary);
+  color: var(--klchat-primary-foreground);
   border: none;
-  border-radius: 12px;
+  border-radius: var(--klchat-radius);
   width: 44px;
   height: 44px;
   cursor: pointer;
@@ -422,6 +478,11 @@
   transform: scale(1.05);
 }
 
+.klchat-send:focus-visible {
+  outline: 2px solid var(--klchat-ring);
+  outline-offset: 2px;
+}
+
 .klchat-send:disabled {
   background: var(--klchat-secondary);
   cursor: not-allowed;
@@ -431,15 +492,15 @@
 .klchat-send svg {
   width: 20px;
   height: 20px;
-  fill: white;
+  fill: currentColor;
 }
 
 /* Error State */
 .klchat-error {
   background: var(--klchat-error);
-  color: white;
+  color: hsl(0, 0%, 98%);
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: var(--klchat-radius);
   margin: 16px 20px;
   font-size: 13px;
   display: flex;
@@ -458,7 +519,7 @@
 .klchat-welcome {
   background: var(--klchat-surface);
   border: 1px solid var(--klchat-border);
-  border-radius: 12px;
+  border-radius: var(--klchat-radius);
   padding: 20px;
   margin: 0 0 16px 0;
   text-align: center;
@@ -467,7 +528,7 @@
 .klchat-welcome h3 {
   margin: 0 0 8px 0;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: bold;
   color: var(--klchat-text);
 }
 
@@ -483,7 +544,7 @@
   padding: 16px;
   background: var(--klchat-background);
   border: 1px solid var(--klchat-border);
-  border-radius: 8px;
+  border-radius: var(--klchat-radius);
   position: relative;
   z-index: 10 !important;
   pointer-events: auto !important;
@@ -510,7 +571,7 @@
 .klchat-form-field label {
   display: block;
   margin-bottom: 6px;
-  font-weight: 500;
+  font-weight: bold;
   color: var(--klchat-text);
   font-size: 13px;
   pointer-events: auto !important;
@@ -519,8 +580,8 @@
 .klchat-form-input {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid var(--klchat-border);
-  border-radius: 6px;
+  border: 1px solid var(--klchat-input-border);
+  border-radius: var(--klchat-radius);
   font-size: 14px;
   font-family: inherit;
   color: var(--klchat-text);
@@ -537,8 +598,13 @@
 
 .klchat-form-input:focus {
   outline: none;
-  border-color: var(--klchat-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: var(--klchat-ring);
+  box-shadow: 0 0 0 3px hsl(24, 100%, 50%, 0.1);
+}
+
+.klchat-form-input:focus-visible {
+  outline: 2px solid var(--klchat-ring);
+  outline-offset: 2px;
 }
 
 .klchat-form-input.klchat-form-error {
@@ -550,11 +616,11 @@
   width: 100%;
   padding: 12px 16px;
   background: var(--klchat-primary);
-  color: white;
+  color: var(--klchat-primary-foreground);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--klchat-radius);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: bold;
   cursor: pointer;
   transition: background-color 0.2s ease;
   position: relative;
@@ -564,6 +630,11 @@
 
 .klchat-form-submit:hover:not(:disabled) {
   background: var(--klchat-primary-hover);
+}
+
+.klchat-form-submit:focus-visible {
+  outline: 2px solid var(--klchat-ring);
+  outline-offset: 2px;
 }
 
 .klchat-form-submit:disabled {
@@ -601,7 +672,7 @@
     width: auto;
     height: calc(100vh - 120px);
     max-width: none;
-    border-radius: 16px 16px 0 0;
+    border-radius: var(--klchat-radius) var(--klchat-radius) 0 0;
   }
   
   .klchat-button {
@@ -717,6 +788,13 @@
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
+  // Get avatar icon HTML (SVG)
+  function getAvatarIcon() {
+    // Try to load from API base URL first, then fallback to relative path
+    const iconPath = `${CONFIG.API_BASE_URL}/images/AI Labben ikon 64x64.svg`;
+    return `<img src="${iconPath}" alt="AI Labben" class="klchat-avatar-icon" />`;
+  }
+
   function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -828,7 +906,7 @@
     chatContainer.innerHTML = `
       <div class="klchat-header">
           <div class="klchat-header-info">
-          <div class="klchat-avatar">AI</div>
+          <div class="klchat-avatar">${getAvatarIcon()}</div>
           <div>
             <h3 class="klchat-title">AI Labben</h3>
             <p class="klchat-subtitle">Vi hjelper deg gjerne!</p>
@@ -846,7 +924,7 @@
       
       <div class="klchat-typing" id="klchat-typing">
         <div class="klchat-message-avatar">
-          <div class="klchat-avatar">AI</div>
+          ${getAvatarIcon()}
         </div>
         <div class="klchat-typing-content">
           <div class="klchat-typing-dot"></div>
@@ -884,7 +962,8 @@
     const messageDiv = document.createElement('div');
     messageDiv.className = `klchat-message ${isUser ? 'klchat-user' : 'klchat-bot'}`;
     
-    const avatar = isUser ? 'U' : 'KL';
+    // Use SVG icon for bot messages, 'U' for user messages
+    const avatar = isUser ? 'U' : getAvatarIcon();
     const timeStr = formatTime(timestamp);
     
     let messageContent;
@@ -1079,6 +1158,9 @@
       button?.classList.add('klchat-open');
       console.log('Opening chat...');
       
+      // Sørg for at proaktiv melding vises hver gang chatten åpnes
+      ensureProactiveMessage();
+      
       setTimeout(() => {
         const input = document.getElementById('klchat-input');
         if (input) {
@@ -1208,11 +1290,10 @@
       // Update title and subtitle
       const title = document.querySelector('.klchat-title');
       const subtitle = document.querySelector('.klchat-subtitle');
-      const avatar = document.querySelector('.klchat-avatar');
       
       if (widget.name) title.textContent = widget.name;
       if (widget.subtitle) subtitle.textContent = widget.subtitle;
-      if (widget.avatar) avatar.textContent = widget.avatar;
+      // Avatar is now SVG icon, don't override it with text
       
       // Debug logging
       console.log('Widget config loaded:', widget);
@@ -1348,6 +1429,96 @@
     initProactiveChat();
   }
 
+  // Hjelpefunksjon for å sikre at proaktiv melding vises
+  function ensureProactiveMessage() {
+    const proactiveConfig = state.customerConfig?.proactive_chat;
+    
+    if (!proactiveConfig || !proactiveConfig.enabled || !proactiveConfig.message) {
+      return;
+    }
+    
+    const messagesContainer = document.getElementById('klchat-messages');
+    if (!messagesContainer) {
+      return;
+    }
+    
+    // Sjekk om meldingen allerede finnes i DOM (sjekk alle meldinger)
+    const existingMessages = messagesContainer.querySelectorAll('.klchat-message.klchat-bot');
+    let messageExistsInDOM = false;
+    
+    existingMessages.forEach(msg => {
+      const content = msg.querySelector('.klchat-message-content');
+      if (content) {
+        // Fjern HTML tags og sammenlign tekst
+        const textContent = content.textContent.trim();
+        const proactiveText = proactiveConfig.message.trim();
+        if (textContent === proactiveText || textContent.includes(proactiveText)) {
+          messageExistsInDOM = true;
+        }
+      }
+    });
+    
+    // Hvis meldingen allerede finnes i DOM, ikke legg den til igjen
+    if (messageExistsInDOM) {
+      console.log('✅ Proaktiv melding finnes allerede i DOM - hopper over');
+      return;
+    }
+    
+    // Sjekk også i chat-historikk
+    const messageExistsInHistory = state.chatHistory.some(
+      msg => msg.role === 'assistant' && msg.content === proactiveConfig.message
+    );
+    
+    if (messageExistsInHistory) {
+      console.log('✅ Proaktiv melding finnes allerede i historikk - hopper over');
+      return;
+    }
+    
+    // Vent litt slik at animasjonen blir ferdig
+    setTimeout(() => {
+      // Dobbeltsjekk igjen etter timeout (i tilfelle flere kall)
+      const existingMessagesAfterWait = messagesContainer.querySelectorAll('.klchat-message.klchat-bot');
+      let stillExists = false;
+      
+      existingMessagesAfterWait.forEach(msg => {
+        const content = msg.querySelector('.klchat-message-content');
+        if (content) {
+          const textContent = content.textContent.trim();
+          const proactiveText = proactiveConfig.message.trim();
+          if (textContent === proactiveText || textContent.includes(proactiveText)) {
+            stillExists = true;
+          }
+        }
+      });
+      
+      if (stillExists) {
+        console.log('✅ Proaktiv melding finnes allerede i DOM (etter timeout) - hopper over');
+        return;
+      }
+      
+      // Fjern welcome-meldingen hvis den finnes
+      const welcomeMsg = messagesContainer.querySelector('.klchat-welcome');
+      if (welcomeMsg) {
+        welcomeMsg.remove();
+      }
+      
+      // Legg til proaktiv melding
+      const proactiveMessage = createMessage(proactiveConfig.message, false, new Date());
+      messagesContainer.appendChild(proactiveMessage);
+      
+      // Legg til i chat-historikk
+      state.chatHistory.push({ 
+        role: 'assistant', 
+        content: proactiveConfig.message 
+      });
+      
+      // Scroll til bunn
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      
+      console.log('🎉 Proaktiv melding lagt til!');
+    }, 500);
+  }
+
   // Proaktiv chat-funksjonalitet
   function initProactiveChat() {
     console.log('🚀 initProactiveChat() kalles');
@@ -1436,33 +1607,9 @@
         toggleWidget();
       }
       
-      // Vent litt slik at animasjonen blir ferdig
-      setTimeout(() => {
-        const messagesContainer = document.getElementById('klchat-messages');
-        
-        if (messagesContainer && proactiveConfig.message) {
-          // Fjern welcome-meldingen hvis den finnes
-          const welcomeMsg = messagesContainer.querySelector('.klchat-welcome');
-          if (welcomeMsg) {
-            welcomeMsg.remove();
-          }
-          
-          // Legg til proaktiv melding
-          const proactiveMessage = createMessage(proactiveConfig.message, false, new Date());
-          messagesContainer.appendChild(proactiveMessage);
-          
-          // Legg til i chat-historikk
-          state.chatHistory.push({ 
-            role: 'assistant', 
-            content: proactiveConfig.message 
-          });
-          
-          // Scroll til bunn
-          messagesContainer.scrollTop = messagesContainer.scrollHeight;
-          
-          console.log('🎉 Proaktiv melding vist!');
-        }
-      }, 500);
+      // Bruk ensureProactiveMessage() for å sikre at meldingen vises
+      // Denne funksjonen sjekker om meldingen allerede finnes før den legger den til
+      ensureProactiveMessage();
       
     }, delay);
   }
