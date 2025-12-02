@@ -68,9 +68,6 @@ export default async function handler(req, res) {
     // Generate session ID
     const sessionIdToUse = session_id || generateSessionId();
     
-    // Get session data
-    const session = sessionManager.getSession(sessionIdToUse);
-    
     // Set session metadata
     sessionManager.setMetadata(sessionIdToUse, {
       currentUrl: sanitizedUrl,
@@ -78,8 +75,17 @@ export default async function handler(req, res) {
       userAgent: req.headers['user-agent']
     });
 
+    // Get session BEFORE adding message to count correctly
+    const sessionBefore = sessionManager.getSession(sessionIdToUse);
+    
+    // Count user messages BEFORE adding the current one
+    const userMessageCountBefore = sessionBefore.chatHistory.filter(msg => msg.role === 'user').length;
+    
     // Add user message to session
     sessionManager.addMessage(sessionIdToUse, 'user', sanitizedMessage);
+    
+    // Get updated session after adding message
+    const session = sessionManager.getSession(sessionIdToUse);
 
     // Determine message count for contact collection logic
     const messageCount = session.chatHistory.length;
@@ -89,7 +95,8 @@ export default async function handler(req, res) {
     
     // Contact collection logic - kun én gang per session
     const hasContact = sessionManager.hasContactInfo(sessionIdToUse);
-    const userMessageCount = session.chatHistory.filter(msg => msg.role === 'user').length;
+    // Use count AFTER adding message (this is the current message number)
+    const userMessageCount = userMessageCountBefore + 1;
     
     // Sjekk om kontakt allerede er samlet i meldinger (inkludert nåværende)
     let contactAlreadyInMessages = false;
