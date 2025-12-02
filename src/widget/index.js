@@ -421,39 +421,36 @@
     const container = document.querySelector('.klchat-container');
     const button = document.querySelector('.klchat-button');
     
-    console.log('Container found:', container);
-    console.log('Button found:', button);
-    
     if (!container) {
       console.error('Chat container not found!');
       return;
     }
     
+    const wasOpen = state.isOpen;
     state.isOpen = !state.isOpen;
-    console.log('New state:', state.isOpen);
     
     if (state.isOpen) {
       container.classList.add('klchat-open');
       button?.classList.add('klchat-open');
       console.log('Opening chat...');
       
-      // MINIMAL: Let CSS handle pointer-events
-      
-      // Focus input after a delay to ensure it's visible
       setTimeout(() => {
         const input = document.getElementById('klchat-input');
         if (input) {
-          console.log('Focusing input after opening...');
           input.focus();
-          input.click(); // Force click to ensure it's active
         }
-      }, 500); // Longer delay to ensure animation is complete
+      }, 500);
     } else {
       container.classList.remove('klchat-open');
       button?.classList.remove('klchat-open');
       console.log('Closing chat...');
       
-      // MINIMAL: Let CSS handle pointer-events
+      // Hvis chatten ble lukket (fra åpen til lukket), marker som manuelt lukket
+      // Dette forhindrer automatisk åpning på nye sider i samme session
+      if (wasOpen) {
+        sessionStorage.setItem('ailabben_chat_manually_closed', 'true');
+        console.log('💾 Chat lukket manuelt - lagret i sessionStorage');
+      }
     }
   }
 
@@ -719,12 +716,9 @@
   // Proaktiv chat-funksjonalitet
   function initProactiveChat() {
     console.log('🚀 initProactiveChat() kalles');
-    console.log('State.customerConfig:', state.customerConfig);
     
     // Sjekk om proaktiv chat er aktivert
     const proactiveConfig = state.customerConfig?.proactive_chat;
-    
-    console.log('Proactive config:', proactiveConfig);
     
     if (!proactiveConfig) {
       console.log('❌ Proaktiv chat config ikke funnet');
@@ -736,15 +730,22 @@
       return;
     }
     
-    // Sjekk om den allerede har vist seg i denne session
-    const storageKey = 'klchat_proactive_shown';
+    // Session storage keys
+    const storageKeyShown = 'ailabben_chat_auto_opened';
+    const storageKeyManuallyClosed = 'ailabben_chat_manually_closed';
     
-    if (proactiveConfig.show_once) {
-      const alreadyShown = sessionStorage.getItem(storageKey);
-      if (alreadyShown) {
-        console.log('⚠️ Proaktiv chat allerede vist i denne session');
-        return;
-      }
+    // Sjekk om den allerede har åpnet seg i denne session (på tvers av sider)
+    const alreadyOpened = sessionStorage.getItem(storageKeyShown);
+    if (alreadyOpened === 'true') {
+      console.log('⚠️ Proaktiv chat allerede åpnet i denne session');
+      return;
+    }
+    
+    // Sjekk om brukeren har lukket chatten manuelt
+    const manuallyClosed = sessionStorage.getItem(storageKeyManuallyClosed);
+    if (manuallyClosed === 'true') {
+      console.log('⚠️ Chat ble lukket manuelt - ikke åpne automatisk');
+      return;
     }
     
     // Start timer
@@ -752,11 +753,14 @@
     console.log(`⏱️ Proaktiv chat starter om ${delay}ms...`);
     
     setTimeout(() => {
-      console.log('⏰ Timer utløpt! Sjekker om chat skal åpnes...');
-      console.log('state.isOpen:', state.isOpen);
-      console.log('state.chatHistory.length:', state.chatHistory.length);
+      // Dobbeltsjekk før åpning
+      const stillClosed = sessionStorage.getItem(storageKeyManuallyClosed);
+      if (stillClosed === 'true') {
+        console.log('⚠️ Chat ble lukket manuelt før timer utløp - ikke åpne');
+        return;
+      }
       
-      // Ikke åpne hvis brukeren allerede har interagert med chatten
+      // Sjekk om chatten allerede er åpen eller om brukeren har interagert
       if (state.isOpen) {
         console.log('⚠️ Chat er allerede åpen');
         return;
@@ -769,13 +773,11 @@
       
       console.log('✅ Åpner proaktiv chat nå!');
       
-      // Marker som vist
-      if (proactiveConfig.show_once) {
-        sessionStorage.setItem(storageKey, 'true');
-        console.log('💾 Lagret i sessionStorage');
-      }
+      // Marker som åpnet i sessionStorage (fungerer på tvers av sider)
+      sessionStorage.setItem(storageKeyShown, 'true');
+      console.log('💾 Lagret i sessionStorage: auto-opened');
       
-      // Åpne chat-vinduet først
+      // Åpne chat-vinduet
       if (!state.isOpen) {
         console.log('🔓 Åpner chat-vindu...');
         toggleWidget();
@@ -783,20 +785,16 @@
       
       // Vent litt slik at animasjonen blir ferdig
       setTimeout(() => {
-        // Legg til bot-melding i UI
         const messagesContainer = document.getElementById('klchat-messages');
-        console.log('📦 Messages container:', messagesContainer);
         
         if (messagesContainer && proactiveConfig.message) {
           // Fjern welcome-meldingen hvis den finnes
           const welcomeMsg = messagesContainer.querySelector('.klchat-welcome');
           if (welcomeMsg) {
-            console.log('🗑️ Fjerner welcome-melding');
             welcomeMsg.remove();
           }
           
           // Legg til proaktiv melding
-          console.log('💬 Legger til proaktiv melding:', proactiveConfig.message);
           const proactiveMessage = createMessage(proactiveConfig.message, false, new Date());
           messagesContainer.appendChild(proactiveMessage);
           
@@ -810,10 +808,8 @@
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
           
           console.log('🎉 Proaktiv melding vist!');
-        } else {
-          console.log('❌ Kunne ikke vise proaktiv melding');
         }
-      }, 500); // Vent 500ms for at chat-vinduet skal åpne
+      }, 500);
       
     }, delay);
   }
