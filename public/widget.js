@@ -842,10 +842,6 @@
       </div>
       
       <div class="klchat-messages" id="klchat-messages">
-        <div class="klchat-welcome">
-          <h3>Velkommen til AI Labben!</h3>
-          <p>Jeg er her for å hjelpe deg med dine spørsmål.</p>
-        </div>
       </div>
       
       <div class="klchat-typing" id="klchat-typing">
@@ -1221,17 +1217,7 @@
       // Debug logging
       console.log('Widget config loaded:', widget);
       
-      // Update welcome message
-      if (widget.welcomeMessage) {
-        const welcomeTitle = document.querySelector('.klchat-welcome h3');
-        const welcomeText = document.querySelector('.klchat-welcome p');
-        if (welcomeTitle && widget.welcomeMessage.title) {
-          welcomeTitle.textContent = widget.welcomeMessage.title;
-        }
-        if (welcomeText && widget.welcomeMessage.text) {
-          welcomeText.textContent = widget.welcomeMessage.text;
-        }
-      }
+      // Welcome message er fjernet - kun proaktiv melding brukes
       
       // Apply custom primary color if set
       if (widget.primaryColor) {
@@ -1382,12 +1368,30 @@
     // Session storage keys
     const storageKeyShown = 'ailabben_chat_auto_opened';
     const storageKeyManuallyClosed = 'ailabben_chat_manually_closed';
+    const storageKeyPageLoadTime = 'ailabben_chat_page_load_time';
     
-    // Sjekk om den allerede har åpnet seg i denne session (på tvers av sider)
-    const alreadyOpened = sessionStorage.getItem(storageKeyShown);
-    if (alreadyOpened === 'true') {
-      console.log('⚠️ Proaktiv chat allerede åpnet i denne session');
-      return;
+    // Sjekk om dette er en ny page load (inkludert hard refresh)
+    const currentPageLoadTime = Date.now();
+    const lastPageLoadTime = sessionStorage.getItem(storageKeyPageLoadTime);
+    
+    // Hvis dette er en ny page load (inkludert refresh), tillat åpning igjen
+    const isNewPageLoad = !lastPageLoadTime || (currentPageLoadTime - parseInt(lastPageLoadTime) > 1000);
+    
+    if (isNewPageLoad) {
+      // Lagre ny page load time
+      sessionStorage.setItem(storageKeyPageLoadTime, currentPageLoadTime.toString());
+      // Reset auto-opened flag ved ny page load
+      sessionStorage.removeItem(storageKeyShown);
+      // Reset manually closed flag ved ny page load (brukeren kan ha lukket i forrige page load)
+      sessionStorage.removeItem(storageKeyManuallyClosed);
+      console.log('🔄 Ny page load detektert - tillater åpning');
+    } else {
+      // Sjekk om den allerede har åpnet seg i denne page load
+      const alreadyOpened = sessionStorage.getItem(storageKeyShown);
+      if (alreadyOpened === 'true') {
+        console.log('⚠️ Proaktiv chat allerede åpnet i denne page load');
+        return;
+      }
     }
     
     // Sjekk om brukeren har lukket chatten manuelt
@@ -1422,7 +1426,7 @@
       
       console.log('✅ Åpner proaktiv chat nå!');
       
-      // Marker som åpnet i sessionStorage (fungerer på tvers av sider)
+      // Marker som åpnet i sessionStorage for denne page load
       sessionStorage.setItem(storageKeyShown, 'true');
       console.log('💾 Lagret i sessionStorage: auto-opened');
       
