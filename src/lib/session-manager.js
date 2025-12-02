@@ -21,7 +21,8 @@ class SessionManager {
         startTime: Date.now(),
         lastActivity: Date.now(),
         timer: null,
-        metadata: {}
+        metadata: {},
+        userMessageCount: 0 // Teller for ekte brukermeldinger (ekskluderer kontaktskjema-innsendinger)
       };
       this.sessions.set(sessionId, session);
       console.log(`🆕 Ny session opprettet: ${sessionId}`);
@@ -54,9 +55,26 @@ class SessionManager {
     // Reset timer kun for brukermeldinger
     if (role === 'user') {
       this.updateActivity(sessionId);
+      
+      // Øk teller for brukermeldinger (kun hvis det ikke er kontaktskjema-innsending)
+      const isFormSubmission = content.includes('user_name') || content.includes('user_email') ||
+        (content.includes('Navn:') && content.includes('E-post:'));
+      
+      if (!isFormSubmission) {
+        session.userMessageCount = (session.userMessageCount || 0) + 1;
+        console.log(`📊 Brukermelding teller: ${session.userMessageCount}`);
+      } else {
+        console.log(`📊 Kontaktskjema-innsending ekskludert fra telling`);
+      }
     }
     
     console.log(`💬 Melding lagt til session ${sessionId}: ${role} - ${content.substring(0, 50)}...`);
+  }
+  
+  // Hent antall ekte brukermeldinger (ekskluderer kontaktskjema-innsendinger)
+  getUserMessageCount(sessionId) {
+    const session = this.getSession(sessionId);
+    return session.userMessageCount || 0;
   }
 
   // Marker kontakt som samlet
