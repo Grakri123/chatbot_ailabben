@@ -72,20 +72,24 @@ PORT=3000
 ### 3. Bygg widgeten
 
 \`\`\`bash
-npm run build:widget
+npm run build
 \`\`\`
 
-### 4. Test lokalt
+### 4. Start server
 
 \`\`\`bash
-# Vercel dev server
+# Development
 npm run dev
 
-# Eller Node.js server
+# Production
 npm start
 \`\`\`
 
-Åpne [http://localhost:3000/test.html](http://localhost:3000/test.html) for å teste widgeten.
+Server kjører på http://localhost:3000. 
+
+**Test lokalt:**
+- Test-side: http://localhost:3000/test.html
+- Widget: http://localhost:3000/widget.js
 
 ## 🌐 Deployment
 
@@ -109,7 +113,7 @@ npm start
 
 \`\`\`bash
 # Bygg widgeten
-npm run build:widget
+npm run build
 
 # Start server
 npm start
@@ -176,11 +180,11 @@ KLChatbot.getChatHistory();                   // Hent chat-historikk
 
 ### Klone for ny kunde
 
-Dette repoet er designet for **én kunde per repo**. Se `CLONE_GUIDE.md` for detaljert guide.
+Dette repoet er designet for **én kunde per repo**.
 
 **Kort versjon:**
 1. Klon repoet: `git clone <repo> chatbot-ny-kunde`
-2. Endre kun `src/config/customer.js`:
+2. Endre `src/config/customer.js`:
    ```javascript
    CUSTOMER_ID: "ny-kunde-id"  // ← Endre kun dette
    ```
@@ -280,7 +284,7 @@ Se \`database/schema.sql\` for komplett struktur.
 Rediger \`src/widget/styles.css\` og bygg på nytt:
 
 \`\`\`bash
-npm run build:widget
+npm run build
 \`\`\`
 
 ### CSS-variabler
@@ -349,11 +353,11 @@ curl https://chat.klvarme.no/api/health
 ### Kommandoer
 
 \`\`\`bash
-npm run dev           # Start dev server (Vercel)
-npm start            # Start Node.js server
-npm run build:widget # Bygg widget
-npm run deploy       # Deploy til Vercel
-npm run db:setup     # Sett opp database
+npm run dev        # Start dev server
+npm start          # Start production server
+npm run build      # Bygg widget
+npm run deploy     # Deploy til Vercel
+npm run db:setup   # Sett opp database
 \`\`\`
 
 ## 🤝 Bidrag

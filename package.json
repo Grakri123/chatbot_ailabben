@@ -6,10 +6,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "node server.js",
-    "vercel:dev": "vercel dev",
-    "build": "node build/build-widget.js",
-    "build:widget": "node build/build-widget.js",
     "start": "node server.js",
+    "build": "node build/build-widget.js",
+    "vercel:dev": "vercel dev",
     "deploy": "vercel --prod",
     "db:setup": "node scripts/setup-database.js",
     "update-prompt": "node scripts/update-klvarme-prompt.js"

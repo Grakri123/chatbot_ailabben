@@ -61,8 +61,7 @@ app.get('/', (req, res) => {
       config: '/api/config',
       health: '/api/health',
       widget: '/widget.js',
-      test: '/test.html',
-      mobileTest: '/mobile-test.html'
+      test: '/test.html'
     }
   });
 });

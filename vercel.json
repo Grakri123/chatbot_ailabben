@@ -9,18 +9,6 @@
     {
       "source": "/widget.min.js", 
       "destination": "/public/widget.min.js"
-    },
-    {
-      "source": "/test.html",
-      "destination": "/public/test.html"
-    },
-    {
-      "source": "/emergency-test.html",
-      "destination": "/public/emergency-test.html"
-    },
-    {
-      "source": "/quick-test.html",
-      "destination": "/public/quick-test.html"
     }
   ],
   "headers": [
