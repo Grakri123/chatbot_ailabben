@@ -77,17 +77,24 @@ export default async function handler(req, res) {
 
     // Get session BEFORE adding message to check count correctly
     const sessionBefore = sessionManager.getSession(sessionIdToUse);
-    const userMessageCountBefore = sessionManager.getUserMessageCount(sessionIdToUse);
     
-    // Sjekk om nåværende melding er kontaktskjema-innsending (FØR vi legger den til)
+    // HARDKODET: Tell kun ekte brukermeldinger (ekskluder kontaktskjema-innsendinger)
+    const userMessageCountBefore = sessionBefore.chatHistory.filter(msg => {
+      if (msg.role !== 'user') return false;
+      // Ekskluder kontaktskjema-innsendinger
+      if (msg.content.includes('user_name') || msg.content.includes('user_email')) return false;
+      if (msg.content.includes('Navn:') && msg.content.includes('E-post:')) return false;
+      return true;
+    }).length;
+    
+    // Sjekk om nåværende melding er kontaktskjema-innsending
     const isCurrentMessageFormSubmission = sanitizedMessage.includes('user_name') || sanitizedMessage.includes('user_email') ||
       (sanitizedMessage.includes('Navn:') && sanitizedMessage.includes('E-post:'));
     
-    // Beregn userMessageCount FØR vi legger til meldingen (for å sjekke om vi skal vise kontaktskjema)
-    // Hvis det ikke er kontaktskjema-innsending, vil denne meldingen bli den neste
+    // HARDKODET: userMessageCount er antall ekte brukermeldinger ETTER denne meldingen
     const userMessageCount = isCurrentMessageFormSubmission ? userMessageCountBefore : userMessageCountBefore + 1;
     
-    // Add user message to session (telleren oppdateres automatisk i addMessage hvis det ikke er kontaktskjema-innsending)
+    // Add user message to session
     sessionManager.addMessage(sessionIdToUse, 'user', sanitizedMessage);
 
     // Get session data after adding message
@@ -103,13 +110,7 @@ export default async function handler(req, res) {
     const hasContact = sessionManager.hasContactInfo(sessionIdToUse);
     
     // Debug logging
-    console.log(`[DEBUG] ========================================`);
-    console.log(`[DEBUG] Melding mottatt: "${sanitizedMessage.substring(0, 50)}..."`);
-    console.log(`[DEBUG] userMessageCountBefore: ${userMessageCountBefore}`);
-    console.log(`[DEBUG] userMessageCount (beregnet): ${userMessageCount}`);
-    console.log(`[DEBUG] Er kontaktskjema-innsending: ${isCurrentMessageFormSubmission}`);
-    console.log(`[DEBUG] hasContact: ${hasContact}`);
-    console.log(`[DEBUG] ========================================`);
+    console.log(`[DEBUG] userMessageCountBefore: ${userMessageCountBefore}, userMessageCount: ${userMessageCount}, isFormSubmission: ${isCurrentMessageFormSubmission}`);
     
     // Sjekk om kontakt allerede er samlet i meldinger (inkludert nåværende)
     let contactAlreadyInMessages = false;
