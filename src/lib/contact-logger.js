@@ -84,8 +84,15 @@ export class ContactLogger {
             }
           }
           
-          // Format content
-          if (typeof content === 'object') {
+          // Normaliser innholdet for lesbar lagring:
+          // 1) Hvis det er tekst: slå sammen linjeskift til mellomrom, slik at
+          //    hver melding blir én "linje" i loggen (hindrer at AI ser ut
+          //    som om den svarer på seg selv flere ganger i frontend).
+          // 2) Hvis det er objekt: serialiser til én tekstblokk.
+          if (typeof content === 'string') {
+            // Erstatt sekvenser av linjeskift + ekstra whitespace med ett mellomrom
+            content = content.replace(/\s*\n+\s*/g, ' ').trim();
+          } else if (typeof content === 'object') {
             content = JSON.stringify(content, null, 2);
           }
           
