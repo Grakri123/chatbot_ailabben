@@ -506,17 +506,37 @@
       // Hide typing indicator
       showTyping(false);
       
-      // Add bot response to UI
-      const botMessage = createMessage(response.message);
-      messagesContainer.appendChild(botMessage);
-      
-      // Add form event listeners if this is a form message
+      // Håndter bot-respons
+      let botMessage;
+
+      // Hvis vi får et kontaktskjema tilbake, sørg for at det IKKE dukker opp to ganger
       if (typeof response.message === 'object' && response.message.type === 'contact_form') {
-        attachFormEventListeners(botMessage);
+        const alreadyHasContactForm = state.chatHistory.some(msg => {
+          if (msg.role !== 'assistant') return false;
+          if (typeof msg.content !== 'string') return false;
+          return msg.content.includes('"type":"contact_form"');
+        });
+
+        if (alreadyHasContactForm) {
+          // Vi har allerede vist et kontaktskjema tidligere i denne sesjonen.
+          // I stedet for å spamme bruker med nytt skjema, vis en vennlig tekst.
+          const infoText = 'Jeg har allerede kontaktinformasjonen din 😊 Fortell meg heller hva du vil ha hjelp med, så skal jeg gjøre mitt beste for å hjelpe deg.';
+          botMessage = createMessage(infoText);
+          messagesContainer.appendChild(botMessage);
+          state.chatHistory.push({ role: 'assistant', content: infoText });
+        } else {
+          // Første gang vi viser kontaktskjema – normal oppførsel
+          botMessage = createMessage(response.message);
+          messagesContainer.appendChild(botMessage);
+          attachFormEventListeners(botMessage);
+          state.chatHistory.push({ role: 'assistant', content: JSON.stringify(response.message) });
+        }
+      } else {
+        // Vanlig tekst-/AI-respons
+        botMessage = createMessage(response.message);
+        messagesContainer.appendChild(botMessage);
+        state.chatHistory.push({ role: 'assistant', content: typeof response.message === 'object' ? JSON.stringify(response.message) : response.message });
       }
-      
-      // Add to chat history
-      state.chatHistory.push({ role: 'assistant', content: typeof response.message === 'object' ? JSON.stringify(response.message) : response.message });
       
       // Update session ID if provided
       if (response.session_id) {

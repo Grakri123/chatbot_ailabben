@@ -263,39 +263,9 @@ Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gi
             return res.status(500).json(createErrorResponse(aiResult.response || 'AI service error', 500));
           }
           
+          // Bare sett botResponse her – selve lagringen av AI-svaret
+          // og logging til Supabase håndteres lenger ned i funksjonen
           botResponse = aiResult.response;
-          
-          // Legg til AI-responsen i session FØR lagring
-          sessionManager.addMessage(sessionIdToUse, 'assistant', 
-            typeof botResponse === 'object' ? JSON.stringify(botResponse) : botResponse
-          );
-          
-          // Hent oppdatert session med AI-responsen inkludert
-          const updatedSession = sessionManager.getSession(sessionIdToUse);
-          
-          // Lagre samtale umiddelbart (backup - sikrer at vi ikke mister data hvis brukeren lukker nettleseren)
-          // MERK: Samtalen vil også lagres på nytt når session avsluttes med HELE samtalen
-          // Den siste lagringen (ved session avslutning) vil ha hele samtalen
-          try {
-            await ContactLogger.logContact({
-              sessionId: sessionIdToUse,
-              customerName: formData.user_name,
-              customerEmail: formData.user_email,
-              conversationHistory: updatedSession.chatHistory, // Bruk oppdatert session med AI-respons
-              triggerMessage: triggerMessage,
-              currentUrl: sanitizedUrl,
-              userIp: clientIP,
-              userAgent: req.headers['user-agent'],
-              sessionDuration: Date.now() - updatedSession.startTime,
-              endReason: 'contact_collected_initial'
-            });
-            console.log(`✅ Samtale lagret umiddelbart (backup) for ${formData.user_name} (${updatedSession.chatHistory.length} meldinger)`);
-          } catch (logError) {
-            console.error('❌ Feil ved umiddelbar lagring:', logError);
-          }
-          
-          // Marker at AI-responsen allerede er lagt til, slik at den ikke legges til igjen senere
-          sessionManager.setMetadata(sessionIdToUse, { aiResponseAdded: true });
         } catch (aiError) {
           console.error('[ERROR] AI service exception:', aiError);
           return res.status(500).json(createErrorResponse('AI service error: ' + aiError.message, 500));
@@ -459,16 +429,40 @@ Du snakker med ${finalContactInfo.userName} som allerede har gitt deg kontaktinf
       console.error('[ERROR] botResponse er ikke satt! userMessageCount:', userMessageCount, 'contactCollected:', contactCollected);
       botResponse = 'Beklager, jeg opplevde en teknisk feil. Kan du prøve igjen?';
     }
-
-    // Add bot response to session (kun hvis den ikke allerede er lagt til)
+    
+    // Legg alltid til AI-svaret i session her (ett sted, én gang)
     const sessionForCheck = sessionManager.getSession(sessionIdToUse);
-    if (!sessionForCheck.metadata?.aiResponseAdded) {
-      sessionManager.addMessage(sessionIdToUse, 'assistant', 
-        typeof botResponse === 'object' ? JSON.stringify(botResponse) : botResponse
-      );
-    } else {
-      // Reset flagget for neste melding
-      sessionManager.setMetadata(sessionIdToUse, { aiResponseAdded: false });
+    sessionManager.addMessage(
+      sessionIdToUse,
+      'assistant',
+      typeof botResponse === 'object' ? JSON.stringify(botResponse) : botResponse
+    );
+
+    // 🔁 NYTT: Oppdater lead i Supabase fortløpende når kontaktinfo er kjent
+    // Dette sikrer at "samtale" alltid inneholder HELE samtalen så langt,
+    // og ikke bare første AI-svar / første snapshot.
+    try {
+      const finalSession = sessionManager.getSession(sessionIdToUse);
+      const finalContact = sessionManager.getContactInfo(sessionIdToUse);
+      
+      if (finalContact && finalContact.userName && finalContact.userEmail) {
+        console.log(`[DEBUG] 🔁 Oppdaterer lead etter melding ${userMessageCount} (session=${sessionIdToUse})`);
+        
+        await ContactLogger.logContact({
+          sessionId: sessionIdToUse,
+          customerName: finalContact.userName,
+          customerEmail: finalContact.userEmail,
+          conversationHistory: finalSession.chatHistory,
+          triggerMessage: sessionManager.getFirstUserMessage(sessionIdToUse) || 'Ukjent',
+          currentUrl: finalSession.metadata.currentUrl || sanitizedUrl || 'Unknown',
+          userIp: finalSession.metadata.userIp || clientIP || 'Unknown',
+          userAgent: finalSession.metadata.userAgent || req.headers['user-agent'] || 'Unknown',
+          sessionDuration: Date.now() - finalSession.startTime,
+          endReason: 'message_update'
+        });
+      }
+    } catch (leadUpdateError) {
+      console.error('❌ Feil ved fortløpende oppdatering av lead:', leadUpdateError);
     }
 
     // Calculate response time
