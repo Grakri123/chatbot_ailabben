@@ -265,7 +265,7 @@ Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gi
           
           botResponse = aiResult.response;
           
-          // Legg til AI-responsen i session FØR lagring, slik at hele samtalen inkluderes
+          // Legg til AI-responsen i session FØR lagring
           sessionManager.addMessage(sessionIdToUse, 'assistant', 
             typeof botResponse === 'object' ? JSON.stringify(botResponse) : botResponse
           );
@@ -273,22 +273,23 @@ Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gi
           // Hent oppdatert session med AI-responsen inkludert
           const updatedSession = sessionManager.getSession(sessionIdToUse);
           
-          // Lagre samtale umiddelbart (sikrer at vi ikke mister data hvis brukeren lukker nettleseren)
+          // Lagre samtale umiddelbart (backup - sikrer at vi ikke mister data)
           // MERK: Samtalen vil også lagres på nytt når session avsluttes med HELE samtalen
+          // Den siste lagringen (ved session avslutning) vil ha hele samtalen
           try {
             await ContactLogger.logContact({
               sessionId: sessionIdToUse,
               customerName: formData.user_name,
               customerEmail: formData.user_email,
-              conversationHistory: updatedSession.chatHistory, // Bruk oppdatert session med AI-respons
+              conversationHistory: updatedSession.chatHistory,
               triggerMessage: triggerMessage,
               currentUrl: sanitizedUrl,
               userIp: clientIP,
               userAgent: req.headers['user-agent'],
               sessionDuration: Date.now() - updatedSession.startTime,
-              endReason: 'contact_collected'
+              endReason: 'contact_collected_initial'
             });
-            console.log(`✅ Samtale lagret umiddelbart for ${formData.user_name} (${updatedSession.chatHistory.length} meldinger)`);
+            console.log(`✅ Samtale lagret umiddelbart (backup) for ${formData.user_name} (${updatedSession.chatHistory.length} meldinger)`);
           } catch (logError) {
             console.error('❌ Feil ved umiddelbar lagring:', logError);
           }

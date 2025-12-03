@@ -52,11 +52,12 @@ class SessionManager {
       timestamp: Date.now()
     });
     
-    // Reset timer kun for brukermeldinger
+    // Reset timer for både brukermeldinger og AI-responser
+    // Dette sikrer at session ikke avsluttes mens samtalen pågår
+    this.updateActivity(sessionId);
+    
+    // Øk teller for brukermeldinger (kun hvis det ikke er kontaktskjema-innsending)
     if (role === 'user') {
-      this.updateActivity(sessionId);
-      
-      // Øk teller for brukermeldinger (kun hvis det ikke er kontaktskjema-innsending)
       const isFormSubmission = content.includes('user_name') || content.includes('user_email') ||
         (content.includes('Navn:') && content.includes('E-post:'));
       
@@ -68,7 +69,7 @@ class SessionManager {
       }
     }
     
-    console.log(`💬 Melding lagt til session ${sessionId}: ${role} - ${content.substring(0, 50)}...`);
+    console.log(`💬 Melding lagt til session ${sessionId}: ${role} - ${content.substring(0, 50)}... (${session.chatHistory.length} meldinger totalt)`);
   }
   
   // Hent antall ekte brukermeldinger (ekskluderer kontaktskjema-innsendinger)
