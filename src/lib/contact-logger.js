@@ -107,28 +107,61 @@ export class ContactLogger {
         samtaleText = JSON.stringify(contactData.conversationHistory, null, 2);
       }
 
-      // Insert new record (no update check since we don't have session_id in new schema)
-      console.log(`➕ Lagrer lead til chatbot_leads: ${contactData.customerName}`);
-      console.log(`📧 E-post: ${contactData.customerEmail}`);
-      console.log(`📝 Samtale lengde: ${samtaleText.length} tegn`);
-      console.log(`📊 Antall meldinger i conversationHistory: ${contactData.conversationHistory?.length || 0}`);
-      console.log(`📊 Antall gyldige meldinger etter filtrering: ${validMessagesCount}`);
-      console.log(`📊 Første 500 tegn av samtale: ${samtaleText.substring(0, 500)}...`);
-      
-      const insertData = {
+      // Bygg felles dataobjekt (inkluderer sessionId slik at vi kan oppdatere samme rad)
+      const baseData = {
+        session_id: contactData.sessionId || null,
         navn: contactData.customerName || null,
         epost: contactData.customerEmail || null,
         bedrift: contactData.bedrift || null, // Optional field
         samtale: samtaleText || 'Ingen samtale registrert'
       };
-      
-      console.log(`📦 Data som sendes:`, JSON.stringify(insertData, null, 2).substring(0, 500) + '...');
-      
-      const result = await supabase
-        .from('chatbot_leads')
-        .insert([insertData])
-        .select();
-      
+
+      console.log(`➕/🔁 Lagrer/oppdaterer lead i chatbot_leads: ${contactData.customerName}`);
+      console.log(`📧 E-post: ${contactData.customerEmail}`);
+      console.log(`🧾 SessionId: ${contactData.sessionId || 'mangler'}`);
+      console.log(`📝 Samtale lengde: ${samtaleText.length} tegn`);
+      console.log(`📊 Antall meldinger i conversationHistory: ${contactData.conversationHistory?.length || 0}`);
+      console.log(`📊 Antall gyldige meldinger etter filtrering: ${validMessagesCount}`);
+      console.log(`📊 Første 500 tegn av samtale: ${samtaleText.substring(0, 500)}...`);
+      console.log(`📦 Data som sendes (trunkert):`, JSON.stringify(baseData, null, 2).substring(0, 500) + '...');
+
+      let result;
+
+      // Hvis vi har sessionId: prøv å finne eksisterende rad for denne sesjonen og oppdater den
+      if (contactData.sessionId) {
+        const { data: existing, error: selectError } = await supabase
+          .from('chatbot_leads')
+          .select('id, session_id')
+          .eq('session_id', contactData.sessionId)
+          .single();
+
+        if (selectError && selectError.code !== 'PGRST116') { // PGRST116 = no rows found
+          console.error('❌ Feil ved oppslag på eksisterende lead (session_id):', selectError);
+        }
+
+        if (!selectError && existing) {
+          console.log(`🔁 Oppdaterer eksisterende lead for session_id=${contactData.sessionId} (id=${existing.id})`);
+          result = await supabase
+            .from('chatbot_leads')
+            .update(baseData)
+            .eq('id', existing.id)
+            .select();
+        } else {
+          console.log(`➕ Fant ingen eksisterende lead for session_id=${contactData.sessionId}, oppretter ny rad`);
+          result = await supabase
+            .from('chatbot_leads')
+            .insert([baseData])
+            .select();
+        }
+      } else {
+        // Fallback uten sessionId – oppførsel som før: alltid ny rad
+        console.log('⚠️ Ingen sessionId tilgjengelig – oppretter ny lead-rad (som tidligere)');
+        result = await supabase
+          .from('chatbot_leads')
+          .insert([baseData])
+          .select();
+      }
+
       if (result.error) {
         console.error('❌ Feil ved lagring til Supabase:', result.error);
         console.error('❌ Feil kode:', result.error.code);
@@ -142,9 +175,9 @@ export class ContactLogger {
         return { success: false, error: result.error.message, fallback: 'console' };
       }
 
-      console.log(`✅ Lead lagret i database: ${contactData.customerName} (${contactData.customerEmail})`);
+      console.log(`✅ Lead lagret/oppdatert i database: ${contactData.customerName} (${contactData.customerEmail})`);
       console.log(`📝 Samtale lagret (${samtaleText.length} tegn)`);
-      console.log(`🆔 Lagret med ID: ${result.data?.[0]?.id || 'ukjent'}`);
+      console.log(`🆔 ID: ${result.data?.[0]?.id || 'ukjent'} (session_id=${result.data?.[0]?.session_id || contactData.sessionId || 'ukjent'})`);
       return { success: true, method: 'supabase', data: result.data };
 
     } catch (err) {

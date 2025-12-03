@@ -1,7 +1,6 @@
 -- Opprett chatbot_leads tabell for AI Labben
 -- Kjør dette i Supabase SQL Editor
 
--- Opprett tabellen
 CREATE TABLE IF NOT EXISTS public.chatbot_leads (
   id UUID NOT NULL DEFAULT gen_random_uuid(),
   navn TEXT NULL,
@@ -11,6 +10,18 @@ CREATE TABLE IF NOT EXISTS public.chatbot_leads (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT timezone('utc'::text, now()),
   CONSTRAINT chatbot_leads_pkey PRIMARY KEY (id)
 ) TABLESPACE pg_default;
+
+-- Sørg for at vi har en session_id-kolonne som kan brukes til å knytte hele samtalen
+-- til én rad per chatsesjon (idempotent ALTER – trygt å kjøre flere ganger)
+ALTER TABLE IF EXISTS public.chatbot_leads
+  ADD COLUMN IF NOT EXISTS session_id TEXT;
+
+-- Indeks på session_id for rask oppslag / oppdatering per sesjon
+CREATE INDEX IF NOT EXISTS idx_chatbot_leads_session_id ON public.chatbot_leads(session_id);
+
+-- (Valgfritt) Unik constraint på session_id hvis du ønsker maks én rad per sesjon:
+-- ALTER TABLE public.chatbot_leads
+--   ADD CONSTRAINT chatbot_leads_session_id_key UNIQUE (session_id);
 
 -- Deaktiver RLS (Row Level Security) for å tillate inserts med service key
 -- Service key skal uansett bypass RLS, men dette sikrer at det fungerer
