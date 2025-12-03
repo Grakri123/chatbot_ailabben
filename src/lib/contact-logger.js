@@ -42,6 +42,8 @@ export class ContactLogger {
     try {
       // Format conversation history as readable text
       let samtaleText = '';
+      let validMessagesCount = 0;
+      
       if (contactData.conversationHistory && Array.isArray(contactData.conversationHistory)) {
         console.log(`📊 Formaterer samtale med ${contactData.conversationHistory.length} meldinger`);
         
@@ -91,7 +93,8 @@ export class ContactLogger {
         });
         
         const validMessages = formattedMessages.filter(msg => msg !== null); // Remove skipped messages
-        console.log(`✅ ${validMessages.length} gyldige meldinger etter filtrering (av ${contactData.conversationHistory.length} totalt)`);
+        validMessagesCount = validMessages.length;
+        console.log(`✅ ${validMessagesCount} gyldige meldinger etter filtrering (av ${contactData.conversationHistory.length} totalt)`);
         
         samtaleText = validMessages.join('\n\n');
         
@@ -109,7 +112,7 @@ export class ContactLogger {
       console.log(`📧 E-post: ${contactData.customerEmail}`);
       console.log(`📝 Samtale lengde: ${samtaleText.length} tegn`);
       console.log(`📊 Antall meldinger i conversationHistory: ${contactData.conversationHistory?.length || 0}`);
-      console.log(`📊 Antall gyldige meldinger etter filtrering: ${validMessages.length}`);
+      console.log(`📊 Antall gyldige meldinger etter filtrering: ${validMessagesCount}`);
       console.log(`📊 Første 500 tegn av samtale: ${samtaleText.substring(0, 500)}...`);
       
       const insertData = {
