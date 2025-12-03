@@ -78,6 +78,9 @@ export default async function handler(req, res) {
     // Get session BEFORE adding message to check count correctly
     const sessionBefore = sessionManager.getSession(sessionIdToUse);
     
+    // Contact collection logic - sjekk om kontakt allerede er samlet (må sjekkes tidlig)
+    const hasContact = sessionManager.hasContactInfo(sessionIdToUse);
+    
     // HARDKODET: Tell kun ekte brukermeldinger (ekskluder kontaktskjema-innsendinger)
     const userMessageCountBefore = sessionBefore.chatHistory.filter(msg => {
       if (msg.role !== 'user') return false;
@@ -110,9 +113,6 @@ export default async function handler(req, res) {
     
     let botResponse;
     let contactInfo = { userName: null, userEmail: null, contactCollected: false };
-    
-    // Contact collection logic - kun én gang per session
-    const hasContact = sessionManager.hasContactInfo(sessionIdToUse);
     
     // Debug logging
     console.log(`[DEBUG] userMessageCountBefore: ${userMessageCountBefore}, userMessageCount: ${userMessageCount}, isFormSubmission: ${isCurrentMessageFormSubmission}`);
