@@ -43,20 +43,27 @@ export class ContactLogger {
       // Format conversation history as readable text
       let samtaleText = '';
       if (contactData.conversationHistory && Array.isArray(contactData.conversationHistory)) {
-        samtaleText = contactData.conversationHistory.map(msg => {
+        console.log(`📊 Formaterer samtale med ${contactData.conversationHistory.length} meldinger`);
+        
+        const formattedMessages = contactData.conversationHistory.map((msg, index) => {
           const role = msg.role === 'user' ? 'Bruker' : 'AI';
           let content = msg.content;
+          
+          // Debug logging for hver melding
+          console.log(`📝 Melding ${index + 1}/${contactData.conversationHistory.length}: ${role}, lengde: ${typeof content === 'string' ? content.length : 'object'}`);
           
           // Skip contact form messages
           if (typeof content === 'string' && (content.includes('user_name') || content.includes('user_email'))) {
             try {
               const parsed = JSON.parse(content);
               if (parsed.user_name || parsed.user_email) {
+                console.log(`⏭️  Hopper over kontaktskjema-innsending (melding ${index + 1})`);
                 return null; // Skip form submissions
               }
             } catch {
               // Not JSON, might be text format
               if (content.includes('Navn:') && content.includes('E-post:')) {
+                console.log(`⏭️  Hopper over kontaktskjema-innsending (melding ${index + 1})`);
                 return null; // Skip form submissions
               }
             }
@@ -67,6 +74,7 @@ export class ContactLogger {
             try {
               const parsed = JSON.parse(content);
               if (parsed && parsed.type === 'contact_form') {
+                console.log(`⏭️  Hopper over kontaktskjema-melding (melding ${index + 1})`);
                 return null; // Skip contact form messages
               }
             } catch {
@@ -80,10 +88,19 @@ export class ContactLogger {
           }
           
           return `${role}: ${content}`;
-        })
-        .filter(msg => msg !== null) // Remove skipped messages
-        .join('\n\n');
+        });
+        
+        const validMessages = formattedMessages.filter(msg => msg !== null); // Remove skipped messages
+        console.log(`✅ ${validMessages.length} gyldige meldinger etter filtrering (av ${contactData.conversationHistory.length} totalt)`);
+        
+        samtaleText = validMessages.join('\n\n');
+        
+        if (samtaleText.length === 0) {
+          console.warn('⚠️  Samtale er tom etter filtrering!');
+          samtaleText = 'Ingen samtale registrert';
+        }
       } else {
+        console.warn('⚠️  conversationHistory er ikke en array:', typeof contactData.conversationHistory);
         samtaleText = JSON.stringify(contactData.conversationHistory, null, 2);
       }
 

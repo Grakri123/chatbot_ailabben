@@ -152,6 +152,8 @@ export default async function handler(req, res) {
       }
       
       // Hvis kontakt ble funnet, lagre samtale umiddelbart
+      // MERK: Dette skjer før AI-respons, så vi lagrer kun det som er tilgjengelig så langt
+      // Resten av samtalen vil bli lagret når session avsluttes
       if (contactAlreadyInMessages) {
         try {
           const savedContact = sessionManager.getContactInfo(sessionIdToUse);
@@ -168,20 +170,23 @@ export default async function handler(req, res) {
             }
           }
           
+          // Hent oppdatert session
+          const updatedSession = sessionManager.getSession(sessionIdToUse);
+          
           await ContactLogger.logContact({
             sessionId: sessionIdToUse,
             customerName: savedContact.userName,
             customerEmail: savedContact.userEmail,
-            conversationHistory: session.chatHistory,
+            conversationHistory: updatedSession.chatHistory, // Bruk oppdatert session
             triggerMessage: triggerMessage,
             currentUrl: sanitizedUrl,
             userIp: clientIP,
             userAgent: req.headers['user-agent'],
-            sessionDuration: Date.now() - session.startTime,
+            sessionDuration: Date.now() - updatedSession.startTime,
             endReason: 'contact_collected'
           });
           
-          console.log(`✅ Kontakt funnet i melding og lagret umiddelbart for ${savedContact.userName}`);
+          console.log(`✅ Kontakt funnet i melding og lagret umiddelbart for ${savedContact.userName} (${updatedSession.chatHistory.length} meldinger)`);
         } catch (logError) {
           console.error('❌ Feil ved umiddelbar lagring av kontakt fra melding:', logError);
         }
@@ -294,24 +299,36 @@ Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gi
           
           botResponse = aiResult.response;
           
-          // Lagre samtale umiddelbart
+          // Legg til AI-responsen i session FØR lagring, slik at hele samtalen inkluderes
+          sessionManager.addMessage(sessionIdToUse, 'assistant', 
+            typeof botResponse === 'object' ? JSON.stringify(botResponse) : botResponse
+          );
+          
+          // Hent oppdatert session med AI-responsen inkludert
+          const updatedSession = sessionManager.getSession(sessionIdToUse);
+          
+          // Lagre samtale umiddelbart med FULL historikk (inkludert AI-respons)
           try {
             await ContactLogger.logContact({
               sessionId: sessionIdToUse,
               customerName: formData.user_name,
               customerEmail: formData.user_email,
-              conversationHistory: session.chatHistory,
+              conversationHistory: updatedSession.chatHistory, // Bruk oppdatert session med AI-respons
               triggerMessage: triggerMessage,
               currentUrl: sanitizedUrl,
               userIp: clientIP,
               userAgent: req.headers['user-agent'],
-              sessionDuration: Date.now() - session.startTime,
+              sessionDuration: Date.now() - updatedSession.startTime,
               endReason: 'contact_collected'
             });
-            console.log(`✅ Samtale lagret umiddelbart for ${formData.user_name}`);
+            console.log(`✅ Samtale lagret umiddelbart for ${formData.user_name} (${updatedSession.chatHistory.length} meldinger)`);
           } catch (logError) {
             console.error('❌ Feil ved umiddelbar lagring:', logError);
           }
+          
+          // Marker at AI-responsen allerede er lagt til, slik at den ikke legges til igjen senere
+          // Dette gjøres ved å sette en flagg i session metadata
+          sessionManager.setMetadata(sessionIdToUse, { aiResponseAdded: true });
         } catch (aiError) {
           console.error('[ERROR] AI service exception:', aiError);
           return res.status(500).json(createErrorResponse('AI service error: ' + aiError.message, 500));
@@ -476,10 +493,16 @@ Du snakker med ${finalContactInfo.userName} som allerede har gitt deg kontaktinf
       botResponse = 'Beklager, jeg opplevde en teknisk feil. Kan du prøve igjen?';
     }
 
-    // Add bot response to session
-    sessionManager.addMessage(sessionIdToUse, 'assistant', 
-      typeof botResponse === 'object' ? JSON.stringify(botResponse) : botResponse
-    );
+    // Add bot response to session (kun hvis den ikke allerede er lagt til)
+    const sessionForCheck = sessionManager.getSession(sessionIdToUse);
+    if (!sessionForCheck.metadata?.aiResponseAdded) {
+      sessionManager.addMessage(sessionIdToUse, 'assistant', 
+        typeof botResponse === 'object' ? JSON.stringify(botResponse) : botResponse
+      );
+    } else {
+      // Reset flagget for neste melding
+      sessionManager.setMetadata(sessionIdToUse, { aiResponseAdded: false });
+    }
 
     // Calculate response time
     const responseTime = measureResponseTime(startTime);
@@ -535,4 +558,6 @@ export const config = {
       sizeLimit: '1mb',
     },
   },
+}
+
 }
