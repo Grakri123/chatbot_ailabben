@@ -130,23 +130,26 @@ class SessionManager {
     // Send til database hvis kontakt er samlet
     if (session.contactCollected && session.contactInfo) {
       try {
-        // Finn trigger-meldingen (siste brukermelding før kontaktskjema)
+        // Finn trigger-meldingen (første brukermelding som ikke er kontaktinfo)
         let triggerMessage = 'Ukjent';
-        for (let i = session.chatHistory.length - 1; i >= 0; i--) {
+        for (let i = 0; i < session.chatHistory.length; i++) {
           const msg = session.chatHistory[i];
           if (msg.role === 'user' && 
               !msg.content.includes('user_name') && 
-              !msg.content.includes('user_email')) {
+              !msg.content.includes('user_email') &&
+              !(typeof msg.content === 'string' && msg.content.includes('Navn:') && msg.content.includes('E-post:'))) {
             triggerMessage = msg.content;
             break;
           }
         }
 
+        console.log(`💾 Lagrer HELE samtalen for ${session.contactInfo.userName} (${session.chatHistory.length} meldinger totalt)`);
+
         await ContactLogger.logContact({
           sessionId: session.id,
           customerName: session.contactInfo.userName,
           customerEmail: session.contactInfo.userEmail,
-          conversationHistory: session.chatHistory,
+          conversationHistory: session.chatHistory, // HELE samtalen inkludert alle meldinger
           triggerMessage: triggerMessage,
           currentUrl: session.metadata.currentUrl || 'Unknown',
           userIp: session.metadata.userIp || 'Unknown',
@@ -155,7 +158,7 @@ class SessionManager {
           endReason: reason
         });
 
-        console.log(`✅ Session ${sessionId} lagret i database`);
+        console.log(`✅ Session ${sessionId} lagret i database med ${session.chatHistory.length} meldinger`);
       } catch (error) {
         console.error(`❌ Feil ved lagring av session ${sessionId}:`, error);
       }

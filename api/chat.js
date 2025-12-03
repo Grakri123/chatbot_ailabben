@@ -151,45 +151,11 @@ export default async function handler(req, res) {
         }
       }
       
-      // Hvis kontakt ble funnet, lagre samtale umiddelbart
-      // MERK: Dette skjer før AI-respons, så vi lagrer kun det som er tilgjengelig så langt
-      // Resten av samtalen vil bli lagret når session avsluttes
+      // Hvis kontakt ble funnet, marker det men lagre IKKE umiddelbart
+      // Samtalen vil bli lagret når session avsluttes, slik at HELE samtalen inkluderes
       if (contactAlreadyInMessages) {
-        try {
-          const savedContact = sessionManager.getContactInfo(sessionIdToUse);
-          let triggerMessage = 'Ukjent';
-          // Finn første brukermelding som ikke er kontaktinfo
-          for (let i = 0; i < session.chatHistory.length; i++) {
-            const histMsg = session.chatHistory[i];
-            if (histMsg.role === 'user' && 
-                !histMsg.content.includes('user_name') && 
-                !histMsg.content.includes('user_email') &&
-                !looksLikeContactInfo(histMsg.content)) {
-              triggerMessage = histMsg.content;
-              break;
-            }
-          }
-          
-          // Hent oppdatert session
-          const updatedSession = sessionManager.getSession(sessionIdToUse);
-          
-          await ContactLogger.logContact({
-            sessionId: sessionIdToUse,
-            customerName: savedContact.userName,
-            customerEmail: savedContact.userEmail,
-            conversationHistory: updatedSession.chatHistory, // Bruk oppdatert session
-            triggerMessage: triggerMessage,
-            currentUrl: sanitizedUrl,
-            userIp: clientIP,
-            userAgent: req.headers['user-agent'],
-            sessionDuration: Date.now() - updatedSession.startTime,
-            endReason: 'contact_collected'
-          });
-          
-          console.log(`✅ Kontakt funnet i melding og lagret umiddelbart for ${savedContact.userName} (${updatedSession.chatHistory.length} meldinger)`);
-        } catch (logError) {
-          console.error('❌ Feil ved umiddelbar lagring av kontakt fra melding:', logError);
-        }
+        const savedContact = sessionManager.getContactInfo(sessionIdToUse);
+        console.log(`✅ Kontakt funnet i melding for ${savedContact.userName}. Samtale vil lagres når session avsluttes.`);
       }
     }
     
@@ -307,7 +273,8 @@ Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gi
           // Hent oppdatert session med AI-responsen inkludert
           const updatedSession = sessionManager.getSession(sessionIdToUse);
           
-          // Lagre samtale umiddelbart med FULL historikk (inkludert AI-respons)
+          // Lagre samtale umiddelbart (sikrer at vi ikke mister data hvis brukeren lukker nettleseren)
+          // MERK: Samtalen vil også lagres på nytt når session avsluttes med HELE samtalen
           try {
             await ContactLogger.logContact({
               sessionId: sessionIdToUse,
@@ -327,7 +294,6 @@ Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gi
           }
           
           // Marker at AI-responsen allerede er lagt til, slik at den ikke legges til igjen senere
-          // Dette gjøres ved å sette en flagg i session metadata
           sessionManager.setMetadata(sessionIdToUse, { aiResponseAdded: true });
         } catch (aiError) {
           console.error('[ERROR] AI service exception:', aiError);
