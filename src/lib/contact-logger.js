@@ -108,6 +108,9 @@ export class ContactLogger {
       console.log(`➕ Lagrer lead til chatbot_leads: ${contactData.customerName}`);
       console.log(`📧 E-post: ${contactData.customerEmail}`);
       console.log(`📝 Samtale lengde: ${samtaleText.length} tegn`);
+      console.log(`📊 Antall meldinger i conversationHistory: ${contactData.conversationHistory?.length || 0}`);
+      console.log(`📊 Antall gyldige meldinger etter filtrering: ${validMessages.length}`);
+      console.log(`📊 Første 500 tegn av samtale: ${samtaleText.substring(0, 500)}...`);
       
       const insertData = {
         navn: contactData.customerName || null,

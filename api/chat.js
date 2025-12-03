@@ -273,7 +273,7 @@ Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gi
           // Hent oppdatert session med AI-responsen inkludert
           const updatedSession = sessionManager.getSession(sessionIdToUse);
           
-          // Lagre samtale umiddelbart (backup - sikrer at vi ikke mister data)
+          // Lagre samtale umiddelbart (backup - sikrer at vi ikke mister data hvis brukeren lukker nettleseren)
           // MERK: Samtalen vil også lagres på nytt når session avsluttes med HELE samtalen
           // Den siste lagringen (ved session avslutning) vil ha hele samtalen
           try {
@@ -281,7 +281,7 @@ Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gi
               sessionId: sessionIdToUse,
               customerName: formData.user_name,
               customerEmail: formData.user_email,
-              conversationHistory: updatedSession.chatHistory,
+              conversationHistory: updatedSession.chatHistory, // Bruk oppdatert session med AI-respons
               triggerMessage: triggerMessage,
               currentUrl: sanitizedUrl,
               userIp: clientIP,
