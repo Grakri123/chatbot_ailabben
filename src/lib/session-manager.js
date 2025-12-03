@@ -173,6 +173,21 @@ class SessionManager {
     session.metadata = { ...session.metadata, ...metadata };
   }
 
+  // Lagre første brukermelding (før kontaktinfo er samlet)
+  setFirstUserMessage(sessionId, message) {
+    const session = this.getSession(sessionId);
+    if (!session.metadata.firstUserMessage) {
+      session.metadata.firstUserMessage = message;
+      console.log(`💾 Lagret første brukermelding for session ${sessionId}: ${message.substring(0, 50)}...`);
+    }
+  }
+
+  // Hent første brukermelding
+  getFirstUserMessage(sessionId) {
+    const session = this.sessions.get(sessionId);
+    return session?.metadata?.firstUserMessage || null;
+  }
+
   // Hent alle aktive sessions (for debugging)
   getActiveSessions() {
     return Array.from(this.sessions.keys());

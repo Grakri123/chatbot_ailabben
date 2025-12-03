@@ -94,6 +94,11 @@ export default async function handler(req, res) {
     // HARDKODET: userMessageCount er antall ekte brukermeldinger ETTER denne meldingen
     const userMessageCount = isCurrentMessageFormSubmission ? userMessageCountBefore : userMessageCountBefore + 1;
     
+    // Hvis dette er første ekte brukermelding og kontakt ikke er samlet, lagre den
+    if (userMessageCount === 1 && !isCurrentMessageFormSubmission && !hasContact) {
+      sessionManager.setFirstUserMessage(sessionIdToUse, sanitizedMessage);
+    }
+    
     // Add user message to session
     sessionManager.addMessage(sessionIdToUse, 'user', sanitizedMessage);
 
@@ -217,55 +222,62 @@ export default async function handler(req, res) {
         contactInfo.userEmail = formData.user_email;
         contactInfo.contactCollected = true;
         
-        // Finn trigger-meldingen (siste ekte brukermelding før kontaktskjemaet)
-        let triggerMessage = 'Ukjent';
-        for (let i = session.chatHistory.length - 1; i >= 0; i--) {
-          const msg = session.chatHistory[i];
-          if (msg.role === 'user' && 
-              !msg.content.includes('user_name') && 
-              !msg.content.includes('user_email') &&
-              !looksLikeContactInfo(msg.content)) {
-            triggerMessage = msg.content;
-            break;
+        // Hent første brukermelding (som ble lagret før kontaktskjema)
+        const firstUserMessage = sessionManager.getFirstUserMessage(sessionIdToUse);
+        let triggerMessage = firstUserMessage || 'Ukjent';
+        
+        // Hvis første melding ikke finnes i metadata, prøv å finne den i historikk
+        if (!firstUserMessage) {
+          for (let i = 0; i < session.chatHistory.length; i++) {
+            const msg = session.chatHistory[i];
+            if (msg.role === 'user' && 
+                !msg.content.includes('user_name') && 
+                !msg.content.includes('user_email') &&
+                !looksLikeContactInfo(msg.content)) {
+              triggerMessage = msg.content;
+              break;
+            }
           }
         }
         
-        // Build conversation context (excluding contact form messages)
+        // Build conversation context - inkluder proaktiv melding og første brukermelding
         const conversationMessages = [];
+        
+        // Legg til proaktiv melding hvis den finnes i historikk
         for (const msg of session.chatHistory) {
-          let shouldSkip = false;
-          
-          // Skip assistant contact form messages
           if (msg.role === 'assistant') {
+            // Skip contact form messages
             try {
               const parsed = typeof msg.content === 'string' ? JSON.parse(msg.content) : msg.content;
               if (parsed && parsed.type === 'contact_form') {
-                shouldSkip = true;
+                continue; // Skip contact form
               }
             } catch {
               if (typeof msg.content === 'string' && msg.content.includes('"type":"contact_form"')) {
-                shouldSkip = true;
+                continue; // Skip contact form
               }
             }
-          }
-          
-          // Skip user form submissions
-          if (msg.role === 'user' && (msg.content.includes('user_name') || msg.content.includes('user_email'))) {
-            shouldSkip = true;
-          }
-          
-          if (!shouldSkip) {
+            // Legg til proaktiv melding (første assistant melding)
             conversationMessages.push({
               role: msg.role,
               content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
             });
+            break; // Kun første assistant melding (proaktiv melding)
           }
         }
         
-        // Create AI response
+        // Legg til første brukermelding (med kontekst)
+        if (firstUserMessage) {
+          conversationMessages.push({
+            role: 'user',
+            content: firstUserMessage
+          });
+        }
+        
+        // Create AI response - start samtalen basert på første melding
         let prompt = `${SYSTEM_PROMPT}
 
-Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gitt deg kontaktinformasjon. Fortsett samtalen naturlig basert på det de har spurt om tidligere - ikke introduser deg på nytt eller start samtalen på nytt.`;
+Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gitt deg kontaktinformasjon. Dette er starten på samtalen - brukeren har sendt deg en melding som du nå skal svare på. Svar naturlig og hjelpsomt på deres første melding.`;
         
         const messages = [
           { role: 'system', content: prompt },
@@ -330,12 +342,13 @@ Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gi
           }
         };
       }
-    } else if (userMessageCount === 2 && !contactCollected) {
-      console.log(`[DEBUG] ✅✅✅ VISER KONTAKTSKJEMA PÅ 2. MELDING ✅✅✅`);
-      // Andre brukermelding - vis kontaktskjema
+    } else if (userMessageCount === 1 && !contactCollected) {
+      console.log(`[DEBUG] ✅✅✅ VISER KONTAKTSKJEMA PÅ 1. MELDING ✅✅✅`);
+      // Første brukermelding - vis kontaktskjema FØR samtalen starter
+      // Meldingen er allerede lagret i session, men vi viser ikke AI-respons ennå
       botResponse = {
         type: 'contact_form',
-        message: 'Jeg gleder meg til å fortsette denne samtalen, men først trenger jeg at du fyller ut infoen under 😊',
+        message: 'Takk for meldingen! Før vi starter samtalen, trenger jeg litt informasjon fra deg 😊',
         form: {
           fields: [
             {
@@ -353,77 +366,107 @@ Du snakker med ${formData.user_name} (${formData.user_email}) som nettopp har gi
               placeholder: 'ola@example.com'
             }
           ],
-          submitText: 'Send inn'
+          submitText: 'Start samtale'
         }
       };
     } else {
-      // Normal AI response (1st, 2nd, or 3rd message if contact already collected, or after contact is collected)
-      console.log(`[DEBUG] Normal AI response for melding ${userMessageCount}`);
-      let prompt = SYSTEM_PROMPT;
-      
-      // If contact is already collected, include customer name in prompt
-      const finalContactInfo = sessionManager.getContactInfo(sessionIdToUse);
-      if (finalContactInfo) {
-        prompt = `${SYSTEM_PROMPT}
+      // Normal AI response (kun hvis kontakt allerede er samlet)
+      // Hvis kontakt ikke er samlet, skal ikke første melding sendes til AI
+      if (!contactCollected && userMessageCount === 1) {
+        // Dette skal ikke skje, men hvis det gjør det, vis kontaktskjema
+        console.log(`[DEBUG] ⚠️ Kontakt ikke samlet på første melding - viser kontaktskjema`);
+        botResponse = {
+          type: 'contact_form',
+          message: 'Takk for meldingen! Før vi starter samtalen, trenger jeg litt informasjon fra deg 😊',
+          form: {
+            fields: [
+              {
+                name: 'user_name',
+                label: 'Navn',
+                type: 'text',
+                required: true,
+                placeholder: 'Ola Nordmann'
+              },
+              {
+                name: 'user_email',
+                label: 'E-post',
+                type: 'email',
+                required: true,
+                placeholder: 'ola@example.com'
+              }
+            ],
+            submitText: 'Start samtale'
+          }
+        };
+      } else {
+        // Normal AI response (kun hvis kontakt er samlet)
+        console.log(`[DEBUG] Normal AI response for melding ${userMessageCount}`);
+        let prompt = SYSTEM_PROMPT;
+        
+        // If contact is already collected, include customer name in prompt
+        const finalContactInfo = sessionManager.getContactInfo(sessionIdToUse);
+        if (finalContactInfo) {
+          prompt = `${SYSTEM_PROMPT}
 
 Du snakker med ${finalContactInfo.userName} som allerede har gitt deg kontaktinformasjon. Fortsett samtalen naturlig.`;
-      }
-      
-      // Build messages array with system prompt and full conversation history
-      const messages = [
-        { role: 'system', content: prompt }
-      ];
-      
-      // Add conversation history (excluding contact form messages)
-      for (const msg of session.chatHistory) {
-        // Skip contact form messages
-        if (msg.role === 'assistant') {
-          try {
-            const parsed = typeof msg.content === 'string' ? JSON.parse(msg.content) : msg.content;
-            if (parsed && parsed.type === 'contact_form') {
-              continue; // Skip contact form messages
-            }
-          } catch {
-            // Not JSON, check if it contains contact form text
-            if (typeof msg.content === 'string' && msg.content.includes('"type":"contact_form"')) {
-              continue; // Skip contact form messages
+        }
+        
+        // Build messages array with system prompt and full conversation history
+        const messages = [
+          { role: 'system', content: prompt }
+        ];
+        
+        // Add conversation history (excluding contact form messages)
+        for (const msg of session.chatHistory) {
+          // Skip contact form messages
+          if (msg.role === 'assistant') {
+            try {
+              const parsed = typeof msg.content === 'string' ? JSON.parse(msg.content) : msg.content;
+              if (parsed && parsed.type === 'contact_form') {
+                continue; // Skip contact form messages
+              }
+            } catch {
+              // Not JSON, check if it contains contact form text
+              if (typeof msg.content === 'string' && msg.content.includes('"type":"contact_form"')) {
+                continue; // Skip contact form messages
+              }
             }
           }
-        }
-        
-        // Skip user messages that are form submissions
-        if (msg.role === 'user' && (msg.content.includes('user_name') || msg.content.includes('user_email'))) {
-          try {
-            const parsed = JSON.parse(msg.content);
-            if (parsed.user_name || parsed.user_email) {
-              continue; // Skip form submissions
-            }
-          } catch {
-            // Not JSON, might be text format - skip if it looks like contact info submission
-            if (looksLikeContactInfo(msg.content) && msg.content.includes('Navn:') && msg.content.includes('E-post:')) {
-              continue; // Skip form submissions
+          
+          // Skip user messages that are form submissions
+          if (msg.role === 'user' && (msg.content.includes('user_name') || msg.content.includes('user_email'))) {
+            try {
+              const parsed = JSON.parse(msg.content);
+              if (parsed.user_name || parsed.user_email) {
+                continue; // Skip form submissions
+              }
+            } catch {
+              // Not JSON, might be text format - skip if it looks like contact info submission
+              if (looksLikeContactInfo(msg.content) && msg.content.includes('Navn:') && msg.content.includes('E-post:')) {
+                continue; // Skip form submissions
+              }
             }
           }
+          
+          messages.push({
+            role: msg.role,
+            content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
+          });
         }
         
-        messages.push({
-          role: msg.role,
-          content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
-        });
-      }
-      
-      try {
-        const aiResult = await OpenAIService.generateResponse(messages, AI_CONFIG);
-        
-        if (!aiResult.success) {
-          console.error('[ERROR] AI response failed:', aiResult.response);
-          return res.status(500).json(createErrorResponse(aiResult.response || 'AI service error', 500));
+        try {
+          const aiResult = await OpenAIService.generateResponse(messages, AI_CONFIG);
+          
+          if (!aiResult.success) {
+            console.error('[ERROR] AI response failed:', aiResult.response);
+            return res.status(500).json(createErrorResponse(aiResult.response || 'AI service error', 500));
+          }
+          
+          botResponse = aiResult.response;
+        } catch (aiError) {
+          console.error('[ERROR] AI service exception:', aiError);
+          return res.status(500).json(createErrorResponse('AI service error: ' + aiError.message, 500));
         }
-        
-        botResponse = aiResult.response;
-      } catch (aiError) {
-        console.error('[ERROR] AI service exception:', aiError);
-        return res.status(500).json(createErrorResponse('AI service error: ' + aiError.message, 500));
       }
     }
 
