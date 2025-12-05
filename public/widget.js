@@ -1,10 +1,10 @@
 
 // AI Labben Chatbot Widget v2.0.1
 // Auto-generated file - do not edit directly
-// Generated: 2025-12-05T13:57:23.964Z
+// Generated: 2025-12-05T14:09:00.031Z
 
 // Expose build version for debugging
-(function(){ try { window.AICHAT_WIDGET_VERSION = 'v2.0.1-2025-12-05T13:57:23.965Z'; } catch(e){} })();
+(function(){ try { window.AICHAT_WIDGET_VERSION = 'v2.0.1-2025-12-05T14:09:00.032Z'; } catch(e){} })();
 
 // Inject CSS
 (function() {
@@ -781,6 +781,56 @@
     customerConfig: null
   };
 
+  // SessionStorage keys for per-fane chat-tilstand
+  const STORAGE_KEYS = {
+    sessionId: 'ailabben_chat_session_id',
+    chatHistory: 'ailabben_chat_history'
+  };
+
+  function setSessionId(id) {
+    state.sessionId = id;
+    try {
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem(STORAGE_KEYS.sessionId, id);
+      }
+    } catch (e) {
+      console.warn('Kunne ikke lagre sessionId i sessionStorage:', e);
+    }
+  }
+
+  function addToChatHistory(entry) {
+    state.chatHistory.push(entry);
+    try {
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem(STORAGE_KEYS.chatHistory, JSON.stringify(state.chatHistory));
+      }
+    } catch (e) {
+      console.warn('Kunne ikke lagre chat-historikk i sessionStorage:', e);
+    }
+  }
+
+  function loadStoredChatState() {
+    try {
+      if (typeof sessionStorage === 'undefined') return;
+
+      const storedSessionId = sessionStorage.getItem(STORAGE_KEYS.sessionId);
+      const storedHistoryRaw = sessionStorage.getItem(STORAGE_KEYS.chatHistory);
+
+      if (storedSessionId) {
+        state.sessionId = storedSessionId;
+      }
+
+      if (storedHistoryRaw) {
+        const parsed = JSON.parse(storedHistoryRaw);
+        if (Array.isArray(parsed)) {
+          state.chatHistory = parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('Kunne ikke lese lagret chat-tilstand fra sessionStorage:', e);
+    }
+  }
+
   // Utility functions
   function generateSessionId() {
     return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -1067,9 +1117,9 @@
         const messagesContainer = document.getElementById('aichat-messages');
         const userMessage = createMessage(`Navn: ${data.user_name}, E-post: ${data.user_email}`, true);
         messagesContainer.appendChild(userMessage);
-        
+
         // Add to chat history
-        state.chatHistory.push({ role: 'user', content: JSON.stringify(data) });
+        addToChatHistory({ role: 'user', content: JSON.stringify(data) });
         
         // Show typing indicator
         setTimeout(() => showTyping(true), 500);
@@ -1083,13 +1133,13 @@
         // Add bot response
         const botMessage = createMessage(response.message);
         messagesContainer.appendChild(botMessage);
-        
+
         // Add to chat history
-        state.chatHistory.push({ role: 'assistant', content: response.message });
+        addToChatHistory({ role: 'assistant', content: response.message });
         
         // Update session ID
         if (response.session_id) {
-          state.sessionId = response.session_id;
+          setSessionId(response.session_id);
         }
         
         // Scroll to bottom
@@ -1207,7 +1257,7 @@
     messagesContainer.appendChild(userMessage);
     
     // Add to chat history
-    state.chatHistory.push({ role: 'user', content: message });
+    addToChatHistory({ role: 'user', content: message });
     
     // Clear input
     input.value = '';
@@ -1243,24 +1293,27 @@
           const infoText = 'Jeg har allerede kontaktinformasjonen din 😊 Fortell meg heller hva du vil ha hjelp med, så skal jeg gjøre mitt beste for å hjelpe deg.';
           botMessage = createMessage(infoText);
           messagesContainer.appendChild(botMessage);
-          state.chatHistory.push({ role: 'assistant', content: infoText });
+          addToChatHistory({ role: 'assistant', content: infoText });
         } else {
           // Første gang vi viser kontaktskjema – normal oppførsel
           botMessage = createMessage(response.message);
           messagesContainer.appendChild(botMessage);
           attachFormEventListeners(botMessage);
-          state.chatHistory.push({ role: 'assistant', content: JSON.stringify(response.message) });
+          addToChatHistory({ role: 'assistant', content: JSON.stringify(response.message) });
         }
       } else {
         // Vanlig tekst-/AI-respons
         botMessage = createMessage(response.message);
         messagesContainer.appendChild(botMessage);
-        state.chatHistory.push({ role: 'assistant', content: typeof response.message === 'object' ? JSON.stringify(response.message) : response.message });
+        addToChatHistory({
+          role: 'assistant',
+          content: typeof response.message === 'object' ? JSON.stringify(response.message) : response.message
+        });
       }
       
       // Update session ID if provided
       if (response.session_id) {
-        state.sessionId = response.session_id;
+        setSessionId(response.session_id);
       }
       
       // Scroll to bottom
@@ -1287,9 +1340,14 @@
       return;
     }
     window.AICHAT_INITIALIZED = true;
+
+    // Hent eventuelt eksisterende sesjon og historikk for denne fanen
+    loadStoredChatState();
     
     // Customer ID hentes fra API (hardkodet i backend)
-    state.sessionId = generateSessionId();
+    if (!state.sessionId) {
+      setSessionId(generateSessionId());
+    }
     
     // Load customer configuration (inkluderer customer_id fra backend)
     state.customerConfig = await loadCustomerConfig();
@@ -1395,6 +1453,37 @@
     // Enable natural scrolling in messages area (remove custom wheel handling)
     const messagesContainer = document.getElementById('aichat-messages');
     if (messagesContainer) {
+      // Gjenopprett tidligere meldinger i UI dersom vi har historikk
+      if (state.chatHistory && state.chatHistory.length > 0) {
+        state.chatHistory.forEach((msg) => {
+          const isUser = msg.role === 'user';
+          let content = msg.content;
+          let parsedContent = null;
+          let isContactForm = false;
+
+          if (typeof content === 'string') {
+            try {
+              parsedContent = JSON.parse(content);
+              if (parsedContent && typeof parsedContent === 'object' && parsedContent.type === 'contact_form') {
+                isContactForm = true;
+              }
+            } catch (e) {
+              // Ikke gyldig JSON – behandle som vanlig tekst
+            }
+          }
+
+          const messageNode = createMessage(isContactForm ? parsedContent : content, isUser, new Date());
+          messagesContainer.appendChild(messageNode);
+
+          if (!isUser && isContactForm) {
+            attachFormEventListeners(messageNode);
+          }
+        });
+
+        // Scroll til bunn etter restore
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+
       console.log('Enabling natural scrolling...');
       
       // Ensure the container is properly scrollable
@@ -1535,7 +1624,7 @@
       messagesContainer.appendChild(proactiveMessage);
       
       // Legg til i chat-historikk
-      state.chatHistory.push({ 
+      addToChatHistory({ 
         role: 'assistant', 
         content: proactiveConfig.message 
       });
