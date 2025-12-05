@@ -1,10 +1,10 @@
 
 // AI Labben Chatbot Widget v2.0.1
 // Auto-generated file - do not edit directly
-// Generated: 2025-12-02T12:43:53.216Z
+// Generated: 2025-12-05T13:57:23.964Z
 
 // Expose build version for debugging
-(function(){ try { window.AICHAT_WIDGET_VERSION = 'v2.0.1-2025-12-02T12:43:53.216Z'; } catch(e){} })();
+(function(){ try { window.AICHAT_WIDGET_VERSION = 'v2.0.1-2025-12-05T13:57:23.965Z'; } catch(e){} })();
 
 // Inject CSS
 (function() {
@@ -1226,17 +1226,37 @@
       // Hide typing indicator
       showTyping(false);
       
-      // Add bot response to UI
-      const botMessage = createMessage(response.message);
-      messagesContainer.appendChild(botMessage);
-      
-      // Add form event listeners if this is a form message
+      // Håndter bot-respons
+      let botMessage;
+
+      // Hvis vi får et kontaktskjema tilbake, sørg for at det IKKE dukker opp to ganger
       if (typeof response.message === 'object' && response.message.type === 'contact_form') {
-        attachFormEventListeners(botMessage);
+        const alreadyHasContactForm = state.chatHistory.some(msg => {
+          if (msg.role !== 'assistant') return false;
+          if (typeof msg.content !== 'string') return false;
+          return msg.content.includes('"type":"contact_form"');
+        });
+
+        if (alreadyHasContactForm) {
+          // Vi har allerede vist et kontaktskjema tidligere i denne sesjonen.
+          // I stedet for å spamme bruker med nytt skjema, vis en vennlig tekst.
+          const infoText = 'Jeg har allerede kontaktinformasjonen din 😊 Fortell meg heller hva du vil ha hjelp med, så skal jeg gjøre mitt beste for å hjelpe deg.';
+          botMessage = createMessage(infoText);
+          messagesContainer.appendChild(botMessage);
+          state.chatHistory.push({ role: 'assistant', content: infoText });
+        } else {
+          // Første gang vi viser kontaktskjema – normal oppførsel
+          botMessage = createMessage(response.message);
+          messagesContainer.appendChild(botMessage);
+          attachFormEventListeners(botMessage);
+          state.chatHistory.push({ role: 'assistant', content: JSON.stringify(response.message) });
+        }
+      } else {
+        // Vanlig tekst-/AI-respons
+        botMessage = createMessage(response.message);
+        messagesContainer.appendChild(botMessage);
+        state.chatHistory.push({ role: 'assistant', content: typeof response.message === 'object' ? JSON.stringify(response.message) : response.message });
       }
-      
-      // Add to chat history
-      state.chatHistory.push({ role: 'assistant', content: typeof response.message === 'object' ? JSON.stringify(response.message) : response.message });
       
       // Update session ID if provided
       if (response.session_id) {
@@ -1530,7 +1550,21 @@
   // Proaktiv chat-funksjonalitet
   function initProactiveChat() {
     console.log('🚀 initProactiveChat() kalles');
-    
+
+    // 🚫 Ikke auto-åpne chat på mobil/små skjermer
+    try {
+      const isSmallScreen = window.matchMedia
+        ? window.matchMedia('(max-width: 768px)').matches
+        : window.innerWidth <= 768;
+
+      if (isSmallScreen) {
+        console.log('📱 Liten skjerm detektert – hopper over proaktiv auto-åpning');
+        return;
+      }
+    } catch (e) {
+      console.warn('Kunne ikke evaluere skjermstørrelse for proaktiv chat:', e);
+    }
+
     // Sjekk om proaktiv chat er aktivert
     const proactiveConfig = state.customerConfig?.proactive_chat;
     
