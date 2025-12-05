@@ -1,10 +1,10 @@
 
 // AI Labben Chatbot Widget v2.0.1
 // Auto-generated file - do not edit directly
-// Generated: 2025-12-05T14:09:00.031Z
+// Generated: 2025-12-05T14:24:34.310Z
 
 // Expose build version for debugging
-(function(){ try { window.AICHAT_WIDGET_VERSION = 'v2.0.1-2025-12-05T14:09:00.032Z'; } catch(e){} })();
+(function(){ try { window.AICHAT_WIDGET_VERSION = 'v2.0.1-2025-12-05T14:24:34.311Z'; } catch(e){} })();
 
 // Inject CSS
 (function() {
@@ -760,7 +760,8 @@
     MAX_MESSAGE_LENGTH: 2000,
     TYPING_DELAY: 1000,
     RETRY_ATTEMPTS: 3,
-    RETRY_DELAY: 1000
+    RETRY_DELAY: 1000,
+    INACTIVITY_TIMEOUT_MS: 5 * 60 * 1000 // 5 minutter
   };
 
   // Debug which API base is used
@@ -778,7 +779,10 @@
     customerId: null,
     sessionId: null,
     chatHistory: [],
-    customerConfig: null
+    customerConfig: null,
+    lastActivity: null,
+    inactivityTimerId: null,
+    conversationEnded: false
   };
 
   // SessionStorage keys for per-fane chat-tilstand
@@ -828,6 +832,36 @@
       }
     } catch (e) {
       console.warn('Kunne ikke lese lagret chat-tilstand fra sessionStorage:', e);
+    }
+  }
+
+  function registerActivity() {
+    state.lastActivity = Date.now();
+    state.conversationEnded = false;
+
+    if (state.inactivityTimerId) {
+      clearTimeout(state.inactivityTimerId);
+    }
+
+    try {
+      state.inactivityTimerId = setTimeout(() => {
+        // Sjekk om det faktisk har vært 5 minutter uten aktivitet
+        const now = Date.now();
+        if (state.lastActivity && now - state.lastActivity < CONFIG.INACTIVITY_TIMEOUT_MS - 500) {
+          return;
+        }
+
+        const messagesContainer = document.getElementById('aichat-messages');
+        if (!messagesContainer) return;
+
+        const endText = 'Samtalen er avsluttet.';
+        const endMessage = createMessage(endText, false, new Date());
+        messagesContainer.appendChild(endMessage);
+        addToChatHistory({ role: 'assistant', content: endText });
+        state.conversationEnded = true;
+      }, CONFIG.INACTIVITY_TIMEOUT_MS);
+    } catch (e) {
+      console.warn('Kunne ikke starte inaktivitets-timer:', e);
     }
   }
 
@@ -1120,6 +1154,7 @@
 
         // Add to chat history
         addToChatHistory({ role: 'user', content: JSON.stringify(data) });
+        registerActivity();
         
         // Show typing indicator
         setTimeout(() => showTyping(true), 500);
@@ -1136,6 +1171,7 @@
 
         // Add to chat history
         addToChatHistory({ role: 'assistant', content: response.message });
+        registerActivity();
         
         // Update session ID
         if (response.session_id) {
@@ -1258,6 +1294,7 @@
     
     // Add to chat history
     addToChatHistory({ role: 'user', content: message });
+    registerActivity();
     
     // Clear input
     input.value = '';
@@ -1289,17 +1326,15 @@
 
         if (alreadyHasContactForm) {
           // Vi har allerede vist et kontaktskjema tidligere i denne sesjonen.
-          // I stedet for å spamme bruker med nytt skjema, vis en vennlig tekst.
-          const infoText = 'Jeg har allerede kontaktinformasjonen din 😊 Fortell meg heller hva du vil ha hjelp med, så skal jeg gjøre mitt beste for å hjelpe deg.';
-          botMessage = createMessage(infoText);
-          messagesContainer.appendChild(botMessage);
-          addToChatHistory({ role: 'assistant', content: infoText });
+          // Ikke vis et nytt skjema eller ekstra melding – ignorer bare duplikatet
+          console.log('Kontakt-skjema er allerede vist i denne sesjonen – ignorerer nytt skjema fra backend.');
         } else {
           // Første gang vi viser kontaktskjema – normal oppførsel
           botMessage = createMessage(response.message);
           messagesContainer.appendChild(botMessage);
           attachFormEventListeners(botMessage);
           addToChatHistory({ role: 'assistant', content: JSON.stringify(response.message) });
+          registerActivity();
         }
       } else {
         // Vanlig tekst-/AI-respons
@@ -1309,6 +1344,7 @@
           role: 'assistant',
           content: typeof response.message === 'object' ? JSON.stringify(response.message) : response.message
         });
+        registerActivity();
       }
       
       // Update session ID if provided
