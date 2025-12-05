@@ -830,7 +830,21 @@
   // Proaktiv chat-funksjonalitet
   function initProactiveChat() {
     console.log('🚀 initProactiveChat() kalles');
-    
+
+    // 🚫 Ikke auto-åpne chat på mobil/små skjermer
+    try {
+      const isSmallScreen = window.matchMedia
+        ? window.matchMedia('(max-width: 768px)').matches
+        : window.innerWidth <= 768;
+
+      if (isSmallScreen) {
+        console.log('📱 Liten skjerm detektert – hopper over proaktiv auto-åpning');
+        return;
+      }
+    } catch (e) {
+      console.warn('Kunne ikke evaluere skjermstørrelse for proaktiv chat:', e);
+    }
+
     // Sjekk om proaktiv chat er aktivert
     const proactiveConfig = state.customerConfig?.proactive_chat;
     
